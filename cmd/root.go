@@ -29,7 +29,7 @@ import (
 
 var cfgFile string
 var userProxy string
-var sitelist, tcplist, vdcEndpoints, rdcEndpoints, vdcREST []string
+var sitelist, tcplist, vdcEndpoints, rdcEndpoints, vdcRESTEndpoints []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -53,12 +53,13 @@ services used by Sauce Labs.`,
 		vdcEndpoints = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80"}
 		// TODO
 		rdcEndpoints = []string{"https://us1.appium.testobject.com/wd/hub/session", "https://eu1.appium.testobject.com/wd/hub/session"}
-		vdcREST = []string{"https://saucelabs.com/rest/v1/mdobeck-test-user/tunnels"}
+		vdcRESTEndpoints = []string{"https://saucelabs.com/rest/v1/USERNAME/tunnels"}
 
 		if runDefault(cmd) {
 			diagnostics.PublicSites(sitelist)
 			diagnostics.SauceServices(vdcEndpoints)
 			diagnostics.RDCServices(rdcEndpoints)
+			diagnostics.VDCREST(vdcRESTEndpoints)
 		} else {
 			runHTTP, err := cmd.Flags().GetBool("http")
 			if err != nil {
@@ -72,6 +73,7 @@ services used by Sauce Labs.`,
 				diagnostics.PublicSites(sitelist)
 				diagnostics.SauceServices(vdcEndpoints)
 				diagnostics.RDCServices(rdcEndpoints)
+				diagnostics.VDCREST(vdcRESTEndpoints)
 			}
 			if runTCP {
 				diagnostics.TCPConns(tcplist, proxyURL)

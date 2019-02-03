@@ -32,14 +32,38 @@ func PublicSites(sitelist []string) {
 	}
 }
 
+// SauceServices sends HTTP requests to Sauce endpoints
+func SauceServices(sauceEndpoints []string) {
+	for _, endpoint := range sauceEndpoints {
+		log.Debug("Sending GET req to ", endpoint)
+		resp, err := http.Get(endpoint)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Fatalf("[ ] %s not reachable\n", endpoint)
+		}
+
+		if resp.StatusCode == 200 {
+			fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
+		} else {
+			fmt.Printf("[ ] %s returned %s\n", endpoint, resp.Status)
+		}
+		log.WithFields(log.Fields{
+			"status": resp.Status,
+			"resp":   resp,
+		}).Infof("[\u2713] %s reachable.\n", endpoint)
+	}
+}
+
 //TCPConns attempts to open various TCP connections to the provided sites
 func TCPConns(sitelist []string, proxyURL *url.URL) {
 	if proxyURL != nil {
+		log.Warn("May fail if you are not using a SOCKS5 Proxy.")
 		var err error
 		var proxyDialer proxy.Dialer
 		proxyDialer, err = proxy.FromURL(proxyURL, proxy.Direct)
 		if err != nil {
-			log.Fatal("Something went wrong while starting a proxy dialer for TCP conns.")
+			log.Fatalf("Something went wrong while starting a proxy dialer for TCP conns.\n%v", err)
 		}
 		for _, site := range sitelist {
 			conn, err := proxyDialer.Dial("tcp4", site)

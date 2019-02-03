@@ -29,7 +29,7 @@ import (
 
 var cfgFile string
 var userProxy string
-var sitelist, tcplist, vdcEndpoints, rdcEndpoints, vdcRESTEndpoints []string
+var sitelist, tcplist, vdcEndpoints, rdcEndpoints []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -53,13 +53,15 @@ services used by Sauce Labs.`,
 		vdcEndpoints = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80"}
 		// TODO
 		rdcEndpoints = []string{"https://us1.appium.testobject.com/wd/hub/session", "https://eu1.appium.testobject.com/wd/hub/session"}
-		vdcRESTEndpoints = []string{"https://saucelabs.com/rest/v1/USERNAME/tunnels"}
+		vdcRESTEndpoints := assembleVDCEndpoints()
 
 		if runDefault(cmd) {
 			diagnostics.PublicSites(sitelist)
 			diagnostics.SauceServices(vdcEndpoints)
 			diagnostics.RDCServices(rdcEndpoints)
-			diagnostics.VDCREST(vdcRESTEndpoints)
+			if vdcRESTEndpoints != nil {
+				diagnostics.VDCREST(vdcRESTEndpoints)
+			}
 		} else {
 			runHTTP, err := cmd.Flags().GetBool("http")
 			if err != nil {
@@ -73,7 +75,9 @@ services used by Sauce Labs.`,
 				diagnostics.PublicSites(sitelist)
 				diagnostics.SauceServices(vdcEndpoints)
 				diagnostics.RDCServices(rdcEndpoints)
-				diagnostics.VDCREST(vdcRESTEndpoints)
+				if vdcRESTEndpoints != nil {
+					diagnostics.VDCREST(vdcRESTEndpoints)
+				}
 			}
 			if runTCP {
 				diagnostics.TCPConns(tcplist, proxyURL)
@@ -208,4 +212,16 @@ func runDefault(cmd *cobra.Command) bool {
 		return false
 	}
 	return true
+}
+
+func assembleVDCEndpoints() []string {
+	if os.Getenv("SAUCE_USERNAME") == "" {
+		log.Info("No Environment Variables found.  Not running VDC REST endpoint tests.")
+		return nil
+	}
+	vdcRESTEndpoints := []string{""}
+	endpoint := fmt.Sprintf("https://saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
+	vdcRESTEndpoints[0] = endpoint
+	fmt.Println(vdcRESTEndpoints[0])
+	return vdcRESTEndpoints
 }

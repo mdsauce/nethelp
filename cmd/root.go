@@ -16,6 +16,8 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/mdsauce/nethelp/diagnostics"
@@ -43,6 +45,7 @@ services used by Sauce Labs.`,
 		log.SetLevel(log.ErrorLevel)
 		VerboseMode(cmd)
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
+		addProxy(proxy)
 
 		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
 		//default sitelists
@@ -113,5 +116,25 @@ func VerboseMode(cmd *cobra.Command) {
 	}
 	if enableVerbose == true {
 		log.SetLevel(log.TraceLevel)
+	}
+}
+
+func addProxy(rawproxy string) {
+	if rawproxy != "" {
+		proxyURL, err := url.Parse(rawproxy)
+		if err != nil {
+			log.Fatalf("Panic while setting proxy %s.  Proxy not set and program exiting. %v", rawproxy, err)
+		}
+		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+		resp, err := http.Get("https://www.saucelabs.com")
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+				"msg":   "www.saucelabs.com not reachable with this proxy",
+			}).Fatalf("Something is wrong with the proxy %s.  It cannot be used.", proxyURL)
+		}
+		log.WithFields(log.Fields{
+			"resp": resp,
+		}).Info("Proxy OK.  Able to reach www.saucelabs.com.")
 	}
 }

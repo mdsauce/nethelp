@@ -45,7 +45,7 @@ services used by Sauce Labs.`,
 		log.SetLevel(log.ErrorLevel)
 		VerboseMode(cmd)
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
-		proxyURL := addProxy(userProxy)
+		proxyURL := addProxy(userProxy, cmd)
 		log.Info("Proxy URL: ", proxyURL)
 
 		//default sitelists
@@ -53,7 +53,7 @@ services used by Sauce Labs.`,
 		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
 
 		diagnostics.PublicSites(sitelist)
-		diagnostics.TCPConns(tcplist, userProxy)
+		diagnostics.TCPConns(tcplist, proxyURL)
 	},
 }
 
@@ -81,7 +81,8 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().BoolP("lucky", "l", false, "feeling lucky?  Disable the proxy check at startup and find out if it works during runtime.")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -123,9 +124,15 @@ func VerboseMode(cmd *cobra.Command) {
 	}
 }
 
-func addProxy(rawProxy string) *url.URL {
+func addProxy(rawProxy string, cmd *cobra.Command) *url.URL {
 	var proxyURL *url.URL
 	var err error
+	var disableCheck bool
+	disableCheck, err = cmd.Flags().GetBool("lucky")
+	if err != nil {
+		log.Fatal("Something went terribly wrong disabling the check with --lucky", err)
+	}
+
 	if rawProxy != "" {
 		proxyURL, err = url.Parse(rawProxy)
 		if err != nil {
@@ -134,8 +141,10 @@ func addProxy(rawProxy string) *url.URL {
 		// This takes care of HTTP calls globally
 		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 	}
-	// Check that the proxy works.  Also check that there are no env vars defining a proxy
-	checkProxy(rawProxy)
+	// check that there are no env vars defining a proxy and everything works
+	if disableCheck != true {
+		checkProxy(rawProxy)
+	}
 	return proxyURL
 }
 

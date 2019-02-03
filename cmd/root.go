@@ -91,6 +91,7 @@ func initConfig() {
 				"error": err,
 			}).Fatal("Failed to find homedir")
 		}
+		home = home + "/.config"
 		// Search config in home directory with name ".nethelp" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".nethelp")

@@ -18,7 +18,7 @@ func PublicSites(sitelist []string) {
 			log.WithFields(log.Fields{
 				"error": err,
 				"resp":  resp,
-			}).Errorf("[ ] %s not reachable %s\n", site, resp.Status)
+			}).Fatalf("[ ] %s not reachable %s\n", site, resp.Status)
 		}
 
 		if resp.StatusCode == 200 {

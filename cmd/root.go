@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mdsauce/nethelp/diagnostics"
 	homedir "github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -39,6 +40,7 @@ services used by Sauce Labs.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		VerboseMode(cmd)
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
+		diagnostics.PublicSites()
 	},
 }
 

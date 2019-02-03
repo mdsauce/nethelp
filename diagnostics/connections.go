@@ -19,8 +19,7 @@ func PublicSites(sitelist []string) {
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
-				"resp":  resp,
-			}).Fatalf("[ ] %s not reachable %s\n", site, resp.Status)
+			}).Fatalf("[ ] %s not reachable\n", site)
 		}
 
 		if resp.StatusCode == 200 {
@@ -34,14 +33,14 @@ func PublicSites(sitelist []string) {
 }
 
 //TCPConns attempts to open various TCP connections to the provided sites
-func TCPConns(sitelist []string, rawProxy string) {
-	if rawProxy != "" {
-		proxyURL, err := url.Parse(rawProxy)
-		if err != nil {
-			log.Fatalf("Panic while setting proxy %s.  Proxy not set and program exiting. %v", rawProxy, err)
-		}
+func TCPConns(sitelist []string, proxyURL *url.URL) {
+	if proxyURL != nil {
+		var err error
 		var proxyDialer proxy.Dialer
 		proxyDialer, err = proxy.FromURL(proxyURL, proxy.Direct)
+		if err != nil {
+			log.Fatal("Something went wrong while starting a proxy dialer for TCP conns.")
+		}
 		for _, site := range sitelist {
 			conn, err := proxyDialer.Dial("tcp4", site)
 			if err != nil {

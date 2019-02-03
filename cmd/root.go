@@ -29,7 +29,7 @@ import (
 
 var cfgFile string
 var userProxy string
-var sitelist, tcplist, sauceEndpoints, vdcREST []string
+var sitelist, tcplist, vdcEndpoints, rdcEndpoints, vdcREST []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -50,12 +50,13 @@ services used by Sauce Labs.`,
 		//default sitelists
 		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
 		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
-		sauceEndpoints = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80", "https://us1.appium.testobject.com/wd/hub", "https://eu1.appium.testobject.com/wd/hub"}
-		// vdcREST = []string{"https://saucelabs.com/rest/v1/mdobeck-test-user/tunnels"}
+		vdcEndpoints = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80"}
+		rdcEndpoints = []string{"https://us1.appium.testobject.com", "https://eu1.appium.testobject.com"}
+		vdcREST = []string{"https://saucelabs.com/rest/v1/mdobeck-test-user/tunnels"}
 
 		if runDefault(cmd) {
 			diagnostics.PublicSites(sitelist)
-			diagnostics.SauceServices(sauceEndpoints)
+			diagnostics.SauceServices(vdcEndpoints)
 		} else {
 			runHTTP, err := cmd.Flags().GetBool("http")
 			if err != nil {
@@ -67,7 +68,7 @@ services used by Sauce Labs.`,
 			}
 			if runHTTP {
 				diagnostics.PublicSites(sitelist)
-				diagnostics.SauceServices(sauceEndpoints)
+				diagnostics.SauceServices(vdcEndpoints)
 			}
 			if runTCP {
 				diagnostics.TCPConns(tcplist, proxyURL)

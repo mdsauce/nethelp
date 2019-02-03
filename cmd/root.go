@@ -45,7 +45,8 @@ services used by Sauce Labs.`,
 		log.SetLevel(log.ErrorLevel)
 		VerboseMode(cmd)
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
-		addProxy(userProxy)
+		proxyURL := addProxy(userProxy)
+		log.Info("Proxy URL: ", proxyURL)
 
 		//default sitelists
 		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
@@ -80,7 +81,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -122,23 +123,30 @@ func VerboseMode(cmd *cobra.Command) {
 	}
 }
 
-func addProxy(rawproxy string) {
-	if rawproxy != "" {
-		proxyURL, err := url.Parse(rawproxy)
+func addProxy(rawProxy string) *url.URL {
+	var proxyURL *url.URL
+	var err error
+	if rawProxy != "" {
+		proxyURL, err = url.Parse(rawProxy)
 		if err != nil {
-			log.Fatalf("Panic while setting proxy %s.  Proxy not set and program exiting. %v", rawproxy, err)
+			log.Fatalf("Panic while setting proxy %s.  Proxy not set and program exiting. %v", rawProxy, err)
 		}
 		// This takes care of HTTP calls globally
 		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 	}
 	// Check that the proxy works.  Also check that there are no env vars defining a proxy
+	checkProxy(rawProxy)
+	return proxyURL
+}
+
+func checkProxy(rawProxy string) {
 	resp, err := http.Get("https://www.saucelabs.com")
 	if err != nil {
-		if rawproxy != "" {
+		if rawProxy != "" {
 			log.WithFields(log.Fields{
 				"error": err,
 				"msg":   "www.saucelabs.com not reachable with this proxy",
-			}).Fatalf("Something is wrong with the proxy %s.  It cannot be used.", rawproxy)
+			}).Fatalf("Something is wrong with the proxy %s.  It cannot be used.", rawProxy)
 		} else {
 			log.WithFields(log.Fields{
 				"error": err,

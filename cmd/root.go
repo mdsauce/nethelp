@@ -52,8 +52,25 @@ services used by Sauce Labs.`,
 		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
 		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
 
-		diagnostics.PublicSites(sitelist)
-		diagnostics.TCPConns(tcplist, proxyURL)
+		if runDefault(cmd) {
+			diagnostics.PublicSites(sitelist)
+			diagnostics.TCPConns(tcplist, proxyURL)
+		} else {
+			runHTTP, err := cmd.Flags().GetBool("http")
+			if err != nil {
+				log.Fatal("Could not get the HTTP flag. ", err)
+			}
+			runTCP, err := cmd.Flags().GetBool("tcp")
+			if err != nil {
+				log.Fatal("Could not get the TCP flag. ", err)
+			}
+			if runHTTP {
+				diagnostics.PublicSites(sitelist)
+			}
+			if runTCP {
+				diagnostics.TCPConns(tcplist, proxyURL)
+			}
+		}
 	},
 }
 
@@ -83,6 +100,8 @@ func init() {
 	// when this action is called directly.
 	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.Flags().BoolP("lucky", "l", false, "feeling lucky?  Disable the proxy check at startup and find out if it works during runtime.")
+	rootCmd.Flags().Bool("http", false, "run HTTP tests. Default is to run all tests.")
+	rootCmd.Flags().Bool("tcp", false, "run TCP tests. Default is to run all tests.")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -164,4 +183,21 @@ func checkProxy(rawProxy string) {
 		}
 	}
 	log.Info("Proxy OK.  Able to reach www.saucelabs.com.", resp)
+}
+
+func runDefault(cmd *cobra.Command) bool {
+	runHTTP, err := cmd.Flags().GetBool("http")
+	if err != nil {
+		log.Fatal("Could not get the HTTP flag. ", err)
+	}
+	runTCP, err := cmd.Flags().GetBool("tcp")
+	if err != nil {
+		log.Fatal("Could not get the TCP flag. ", err)
+	}
+	log.Debug("Checking commands to see if we don't want to run default test set. ", runHTTP, runTCP)
+	if runHTTP || runTCP {
+		log.Debug("HTTP or TCP flag used.  Not running default test set.", runHTTP, runTCP)
+		return false
+	}
+	return true
 }

@@ -27,6 +27,7 @@ import (
 
 var cfgFile string
 var proxy string
+var sitelist []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -38,9 +39,13 @@ services used by Sauce Labs.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
+		log.SetLevel(log.ErrorLevel)
 		VerboseMode(cmd)
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
-		diagnostics.PublicSites()
+
+		//default
+		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
+		diagnostics.PublicSites(sitelist)
 	},
 }
 
@@ -54,6 +59,7 @@ func Execute() {
 }
 
 func init() {
+	log.SetFormatter(&log.TextFormatter{})
 	cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.

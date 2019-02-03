@@ -44,5 +44,6 @@ func TCPConns(sitelist []string) {
 			"local":  conn.LocalAddr(),
 			"remote": conn.RemoteAddr(),
 		}).Infof("[\u2713] %s reachable via TCP (IPv4).\n", site)
+		conn.Close()
 	}
 }

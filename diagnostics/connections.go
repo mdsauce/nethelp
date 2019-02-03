@@ -41,7 +41,7 @@ func TCPConns(sitelist []string, rawProxy string) {
 			log.Fatalf("Panic while setting proxy %s.  Proxy not set and program exiting. %v", rawProxy, err)
 		}
 		var proxyDialer proxy.Dialer
-		proxyDialer, err = proxy.FromURL(proxyURL, proxyDialer)
+		proxyDialer, err = proxy.FromURL(proxyURL, proxy.Direct)
 		for _, site := range sitelist {
 			conn, err := proxyDialer.Dial("tcp4", site)
 			if err != nil {

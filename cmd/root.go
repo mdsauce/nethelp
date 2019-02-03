@@ -28,7 +28,7 @@ import (
 )
 
 var cfgFile string
-var proxy string
+var userProxy string
 var sitelist []string
 var tcplist []string
 
@@ -45,14 +45,14 @@ services used by Sauce Labs.`,
 		log.SetLevel(log.ErrorLevel)
 		VerboseMode(cmd)
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
-		addProxy(proxy)
+		addProxy(userProxy)
 
 		//default sitelists
 		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
 		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
 
-		// diagnostics.PublicSites(sitelist)
-		diagnostics.TCPConns(tcplist, proxy)
+		diagnostics.PublicSites(sitelist)
+		diagnostics.TCPConns(tcplist, userProxy)
 	},
 }
 
@@ -74,7 +74,7 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file path (default is $HOME/.nethelp.yaml)")
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "print all logging levels")
-	rootCmd.PersistentFlags().StringVarP(&proxy, "proxy", "p", "", "upstream proxy for nethelp to use.  Port should be added like my.proxy:8080")
+	rootCmd.PersistentFlags().StringVarP(&userProxy, "proxy", "p", "", "upstream proxy for nethelp to use.  Port should be added like my.proxy:8080")
 	// TODO
 	// root.rootCmd.PersistentFlags().StringVarP(&proxyAuth, "auth", "a", "", "authentication for upstream proxy.  use like -a username:password.")
 
@@ -131,15 +131,20 @@ func addProxy(rawproxy string) {
 		// This takes care of HTTP calls globally
 		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 	}
-	//Check that the proxy works.  Also check that there are no env vars defining a proxy
+	// Check that the proxy works.  Also check that there are no env vars defining a proxy
 	resp, err := http.Get("https://www.saucelabs.com")
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"msg":   "www.saucelabs.com not reachable with this proxy",
-		}).Fatalf("Something is wrong with the proxy %s or defined in your environment variables.  It cannot be used.", rawproxy)
+		if rawproxy != "" {
+			log.WithFields(log.Fields{
+				"error": err,
+				"msg":   "www.saucelabs.com not reachable with this proxy",
+			}).Fatalf("Something is wrong with the proxy %s.  It cannot be used.", rawproxy)
+		} else {
+			log.WithFields(log.Fields{
+				"error": err,
+				"msg":   "www.saucelabs.com not reachable with this proxy",
+			}).Fatal("Something is wrong with the proxy specified in your environment variables.  It cannot be used.")
+		}
 	}
-	log.WithFields(log.Fields{
-		"resp": resp,
-	}).Info("Proxy OK.  Able to reach www.saucelabs.com.")
+	log.Info("Proxy OK.  Able to reach www.saucelabs.com.", resp)
 }

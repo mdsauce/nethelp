@@ -25,6 +25,7 @@ import (
 )
 
 var cfgFile string
+var proxy string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -32,7 +33,7 @@ var rootCmd = &cobra.Command{
 	Short: "Helper to troubleshoot problems running tests on Sauce Labs.",
 	Long: `Nethelp will assist with finding out what is blocking outbound 
 connections from the machine by sending HTTP and TCP connections to 
-servies used by Sauce Labs.`,
+services used by Sauce Labs.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
@@ -58,6 +59,7 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file path (default is $HOME/.nethelp.yaml)")
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Print all logging levels")
+	rootCmd.PersistentFlags().StringVarP(&proxy, "proxy", "p", "", "upstream proxy for nethelp to use.  Port should be added like my.proxy:8080")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -91,12 +93,13 @@ func initConfig() {
 	}
 }
 
+// VerboseMode enables Trace level logging and shows all logs
 func VerboseMode(cmd *cobra.Command) {
 	enableVerbose, err := cmd.PersistentFlags().GetBool("verbose")
 	if err != nil {
-		log.Fatal("Uh oh.  Verbose flag broke.")
+		log.Fatal("Verbose flag broke.", err)
 	}
 	if enableVerbose == true {
-		log.SetLevel(log.DebugLevel)
+		log.SetLevel(log.TraceLevel)
 	}
 }

@@ -23,13 +23,7 @@ func PublicSites(sitelist []string) {
 			}).Fatalf("[ ] %s not reachable\n", site)
 		}
 
-		if resp.StatusCode == 200 {
-			fmt.Printf("[\u2713] %s is reachable %s\n", site, resp.Status)
-		}
-		log.WithFields(log.Fields{
-			"status": resp.Status,
-			"resp":   resp,
-		}).Infof("[\u2713] %s reachable.\n", site)
+		respOutput(resp, site)
 	}
 }
 
@@ -44,19 +38,7 @@ func SauceServices(sauceEndpoints []string) {
 			}).Fatalf("[ ] %s not reachable\n", endpoint)
 		}
 
-		if resp.StatusCode == 200 {
-			fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
-			log.WithFields(log.Fields{
-				"status": resp.Status,
-				"resp":   resp,
-			}).Infof("[\u2713] %s reachable.\n", endpoint)
-		} else {
-			fmt.Printf("[ ] %s returned %s\n", endpoint, resp.Status)
-			log.WithFields(log.Fields{
-				"status": resp.Status,
-				"resp":   resp,
-			}).Infof("[ ] %s returned %s\n", endpoint, resp.Status)
-		}
+		respOutput(resp, endpoint)
 	}
 }
 
@@ -75,26 +57,7 @@ func VDCREST(vdcRESTEndpoints []string) {
 				"error": err,
 			}).Fatalf("[ ] %s not reachable\n", endpoint)
 		}
-
-		if resp.StatusCode == 200 {
-			fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
-			log.WithFields(log.Fields{
-				"status": resp.Status,
-				"resp":   resp,
-			}).Infof("[\u2713] %s reachable.\n", endpoint)
-		} else if resp.StatusCode == 401 {
-			fmt.Printf("[\u2713] %s is reachable but returned %s\n", endpoint, resp.Status)
-			log.WithFields(log.Fields{
-				"status": resp.Status,
-				"resp":   resp,
-			}).Infof("[\u2713] %s reachable but unauthenticated.\n", endpoint)
-		} else {
-			fmt.Printf("[ ] %s returned %s\n", endpoint, resp.Status)
-			log.WithFields(log.Fields{
-				"status": resp.Status,
-				"resp":   resp,
-			}).Infof("[ ] %s returned %s\n", endpoint, resp.Status)
-		}
+		respOutput(resp, endpoint)
 	}
 }
 
@@ -114,25 +77,7 @@ func RDCServices(rdcEndpoints []string) {
 			}).Fatalf("[ ] %s not reachable\n", endpoint)
 		}
 
-		if resp.StatusCode == 200 {
-			fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
-			log.WithFields(log.Fields{
-				"status": resp.Status,
-				"resp":   resp,
-			}).Infof("[\u2713] %s reachable.\n", endpoint)
-		} else if resp.StatusCode == 401 || resp.StatusCode == 500 {
-			fmt.Printf("[\u2713] %s is reachable but returned %s\n", endpoint, resp.Status)
-			log.WithFields(log.Fields{
-				"status": resp.Status,
-				"resp":   resp,
-			}).Infof("[\u2713] %s is reachable but returned %s\n", endpoint, resp.Status)
-		} else {
-			fmt.Printf("[ ] %s returned %s\n", endpoint, resp.Status)
-			log.WithFields(log.Fields{
-				"status": resp.Status,
-				"resp":   resp,
-			}).Infof("[ ] %s returned %s\n", endpoint, resp.Status)
-		}
+		respOutput(resp, endpoint)
 	}
 }
 
@@ -172,5 +117,27 @@ func TCPConns(sitelist []string, proxyURL *url.URL) {
 			}).Infof("[\u2713] %s reachable via TCP (IPv4).\n", site)
 			conn.Close()
 		}
+	}
+}
+
+func respOutput(resp *http.Response, endpoint string) {
+	if resp.StatusCode == 200 {
+		fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
+		log.WithFields(log.Fields{
+			"status": resp.Status,
+			"resp":   resp,
+		}).Infof("[\u2713] %s reachable.\n", endpoint)
+	} else if resp.StatusCode == 401 {
+		fmt.Printf("[\u2713] %s is reachable but returned %s\n", endpoint, resp.Status)
+		log.WithFields(log.Fields{
+			"status": resp.Status,
+			"resp":   resp,
+		}).Infof("[\u2713] %s reachable but unauthenticated.\n", endpoint)
+	} else {
+		fmt.Printf("[ ] %s returned %s\n", endpoint, resp.Status)
+		log.WithFields(log.Fields{
+			"status": resp.Status,
+			"resp":   resp,
+		}).Infof("[ ] %s returned %s\n", endpoint, resp.Status)
 	}
 }

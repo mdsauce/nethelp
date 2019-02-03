@@ -37,7 +37,7 @@ func TCPConns(sitelist []string) {
 		timeout := time.Duration(5 * time.Second)
 		conn, err := net.DialTimeout("tcp4", site, timeout)
 		if err != nil {
-			log.Errorf("%s unreachable, %v: ", site, err)
+			log.Fatalf("%s unreachable, %v: ", site, err)
 		}
 		fmt.Println("[\u2713] TCP (IPv4) connection to", site)
 		log.WithFields(log.Fields{

@@ -27,20 +27,4 @@ func PublicSites(sitelist []string) {
 			"resp":   resp,
 		}).Infof("[x] %s reachable.\n", site)
 	}
-
-	// log.Debug("Sending GET req to www.duckduckgo.com.")
-	// if resp, err = http.Get("https://www.duckduckgo.com"); err != nil {
-	// 	log.WithFields(log.Fields{
-	// 		"error": err,
-	// 		"resp":  resp,
-	// 	}).Error("[ ] www.duckduckgo.com not reachable", resp.Status)
-	// }
-
-	// if resp.StatusCode == 200 {
-	// 	fmt.Println("[x] www.duckduckgo.com is reachable", resp.Status)
-	// }
-	// log.WithFields(log.Fields{
-	// 	"status": resp.Status,
-	// 	"resp":   resp,
-	// }).Info("[x] www.duckduckgo.com reachable.")
 }

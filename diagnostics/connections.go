@@ -1,6 +1,7 @@
 package diagnostics
 
 import (
+	"bytes"
 	"fmt"
 	"net"
 	"net/http"
@@ -44,6 +45,38 @@ func SauceServices(sauceEndpoints []string) {
 		}
 
 		if resp.StatusCode == 200 {
+			fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
+			log.WithFields(log.Fields{
+				"status": resp.Status,
+				"resp":   resp,
+			}).Infof("[\u2713] %s reachable.\n", endpoint)
+		} else {
+			fmt.Printf("[ ] %s returned %s\n", endpoint, resp.Status)
+			log.WithFields(log.Fields{
+				"status": resp.Status,
+				"resp":   resp,
+			}).Infof("[ ] %s returned %s\n", endpoint, resp.Status)
+		}
+	}
+}
+
+// RDCServices makes connections to the main RDC endpoints required to run tests
+func RDCServices(rdcEndpoints []string) {
+	for _, endpoint := range rdcEndpoints {
+		log.Debug("Sending POST req to ", endpoint)
+		var jsonBody = []byte(`{"test":"this will result in an HTTP 500 resp or 401 resp."}`)
+		req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Fatalf("[ ] %s not reachable\n", endpoint)
+		}
+
+		if resp.StatusCode == 200 || resp.StatusCode == 401 || resp.StatusCode == 500 {
 			fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
 			log.WithFields(log.Fields{
 				"status": resp.Status,

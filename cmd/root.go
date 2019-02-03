@@ -28,6 +28,7 @@ import (
 var cfgFile string
 var proxy string
 var sitelist []string
+var tcplist []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -43,9 +44,11 @@ services used by Sauce Labs.`,
 		VerboseMode(cmd)
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
 
-		//default
+		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
+		//default sitelists
 		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
 		diagnostics.PublicSites(sitelist)
+		diagnostics.TCPConns(tcplist)
 	},
 }
 

@@ -47,11 +47,12 @@ services used by Sauce Labs.`,
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
 		addProxy(proxy)
 
-		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
 		//default sitelists
+		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
 		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
-		diagnostics.PublicSites(sitelist)
-		diagnostics.TCPConns(tcplist)
+
+		// diagnostics.PublicSites(sitelist)
+		diagnostics.TCPConns(tcplist, proxy)
 	},
 }
 
@@ -72,8 +73,10 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file path (default is $HOME/.nethelp.yaml)")
-	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Print all logging levels")
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "print all logging levels")
 	rootCmd.PersistentFlags().StringVarP(&proxy, "proxy", "p", "", "upstream proxy for nethelp to use.  Port should be added like my.proxy:8080")
+	// TODO
+	// root.rootCmd.PersistentFlags().StringVarP(&proxyAuth, "auth", "a", "", "authentication for upstream proxy.  use like -a username:password.")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -125,16 +128,18 @@ func addProxy(rawproxy string) {
 		if err != nil {
 			log.Fatalf("Panic while setting proxy %s.  Proxy not set and program exiting. %v", rawproxy, err)
 		}
+		// This takes care of HTTP calls globally
 		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
-		resp, err := http.Get("https://www.saucelabs.com")
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-				"msg":   "www.saucelabs.com not reachable with this proxy",
-			}).Fatalf("Something is wrong with the proxy %s.  It cannot be used.", proxyURL)
-		}
-		log.WithFields(log.Fields{
-			"resp": resp,
-		}).Info("Proxy OK.  Able to reach www.saucelabs.com.")
 	}
+	//Check that the proxy works.  Also check that there are no env vars defining a proxy
+	resp, err := http.Get("https://www.saucelabs.com")
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"msg":   "www.saucelabs.com not reachable with this proxy",
+		}).Fatalf("Something is wrong with the proxy %s or defined in your environment variables.  It cannot be used.", rawproxy)
+	}
+	log.WithFields(log.Fields{
+		"resp": resp,
+	}).Info("Proxy OK.  Able to reach www.saucelabs.com.")
 }

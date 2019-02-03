@@ -36,11 +36,8 @@ servies used by Sauce Labs.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		enableVerbose, err := cmd.PersistentFlags().GetBool("verbose")
-		if err != nil {
-			log.Fatal("Uh oh.  Verbose flag broke.")
-		}
-		fmt.Println("Enable Verbose mode: ", enableVerbose)
+		VerboseMode(cmd)
+		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
 	},
 }
 
@@ -91,5 +88,15 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
+	}
+}
+
+func VerboseMode(cmd *cobra.Command) {
+	enableVerbose, err := cmd.PersistentFlags().GetBool("verbose")
+	if err != nil {
+		log.Fatal("Uh oh.  Verbose flag broke.")
+	}
+	if enableVerbose == true {
+		log.SetLevel(log.DebugLevel)
 	}
 }

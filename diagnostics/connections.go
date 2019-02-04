@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -42,12 +43,15 @@ func SauceServices(sauceEndpoints []string) {
 	}
 }
 
-// VDCREST connects to the rest endpoint with user supplied or env variable credentials
+// VDCREST connects to the rest endpoint with env variable credentials
 func VDCREST(vdcRESTEndpoints []string) {
+	username := os.Getenv("SAUCE_USERNAME")
+	apiKey := os.Getenv("SAUCE_ACCESS_KEY")
 	for _, endpoint := range vdcRESTEndpoints {
 		log.Debug("Sending GET req to ", endpoint)
 		var jsonBody = []byte(`{}`)
 		req, err := http.NewRequest("GET", endpoint, bytes.NewBuffer(jsonBody))
+		req.SetBasicAuth(username, apiKey)
 		req.Header.Set("Content-Type", "application/json")
 
 		client := &http.Client{}

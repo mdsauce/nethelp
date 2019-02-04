@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -105,7 +106,7 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file path (default is $HOME/.nethelp.yaml)")
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "print all logging levels")
-	rootCmd.PersistentFlags().StringVarP(&userProxy, "proxy", "p", "", "upstream proxy for nethelp to use.  Port should be added like my.proxy:8080")
+	rootCmd.PersistentFlags().StringVarP(&userProxy, "proxy", "p", "", "upstream proxy for nethelp to use. Enter like -p protocol://username:password@host:port")
 	// TODO
 	// root.rootCmd.PersistentFlags().StringVarP(&proxyAuth, "auth", "a", "", "authentication for upstream proxy.  use like -a username:password.")
 
@@ -172,7 +173,7 @@ func addProxy(rawProxy string, cmd *cobra.Command) *url.URL {
 			log.Fatalf("Panic while setting proxy %s.  Proxy not set and program exiting. %v", rawProxy, err)
 		}
 		// This takes care of HTTP calls globally
-		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyURL), TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
 	}
 	// check that there are no env vars defining a proxy and everything works
 	if disableCheck != true {
@@ -188,13 +189,19 @@ func checkProxy(rawProxy string) {
 			log.WithFields(log.Fields{
 				"error": err,
 				"msg":   "www.saucelabs.com not reachable with this proxy",
-			}).Fatalf("Something is wrong with the proxy %s.  It cannot be used.", rawProxy)
+			}).Fatalf("Something is wrong with the user specified proxy %s.  It cannot be used.", rawProxy)
 		} else {
 			log.WithFields(log.Fields{
 				"error": err,
 				"msg":   "www.saucelabs.com not reachable with this proxy",
+				"resp":  *resp,
 			}).Fatal("Something is wrong with the proxy specified in your environment variables.  It cannot be used.")
 		}
+	}
+	if resp.StatusCode != 200 {
+		log.WithFields(log.Fields{
+			"response": *resp,
+		}).Fatal("Something is wrong with the proxy.  It cannot was not able to reach a public website.")
 	}
 	log.Info("Proxy OK.  Able to reach www.saucelabs.com.", resp)
 }
@@ -208,7 +215,6 @@ func runDefault(cmd *cobra.Command) bool {
 	if err != nil {
 		log.Fatal("Could not get the TCP flag. ", err)
 	}
-	log.Debug("Checking commands to see if we don't want to run default test set. ", runHTTP, runTCP)
 	if runHTTP || runTCP {
 		log.Debug("HTTP or TCP flag used.  Not running default test set.", runHTTP, runTCP)
 		return false
@@ -224,7 +230,6 @@ func assembleVDCEndpoints() []string {
 	vdcRESTEndpoints := []string{""}
 	endpoint := fmt.Sprintf("https://saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
 	vdcRESTEndpoints[0] = endpoint
-	fmt.Println(vdcRESTEndpoints[0])
 	return vdcRESTEndpoints
 }
 

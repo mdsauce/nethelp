@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/mdsauce/nethelp/diagnostics"
 	homedir "github.com/mitchellh/go-homedir"
@@ -42,6 +43,7 @@ services used by Sauce Labs.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
+		log.SetOutput(os.Stdout)
 		log.SetLevel(log.WarnLevel)
 		VerboseMode(cmd)
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
@@ -55,6 +57,23 @@ services used by Sauce Labs.`,
 		// TODO
 		rdcEndpoints = []string{"https://us1.appium.testobject.com/wd/hub/session", "https://eu1.appium.testobject.com/wd/hub/session"}
 		vdcRESTEndpoints := assembleVDCEndpoints()
+
+		logging, err := cmd.Flags().GetBool("log")
+		if err != nil {
+			log.Fatal("Could not get output flag.")
+		}
+		if logging == true {
+			filename, err := cmd.Flags().GetString("out")
+			if err != nil {
+				log.Fatal("Could not get output flag.")
+			}
+			fp, err := os.OpenFile("./"+filename+".log", os.O_WRONLY|os.O_CREATE, 0755)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer fp.Close()
+			log.SetOutput(fp)
+		}
 
 		if runDefault(cmd) {
 			diagnostics.PublicSites(sitelist)
@@ -116,6 +135,8 @@ func init() {
 	rootCmd.Flags().BoolP("lucky", "l", false, "feeling lucky?  Disable the proxy check at startup and find out if it works during runtime.")
 	rootCmd.Flags().Bool("http", false, "run HTTP tests. Default is to run all tests.")
 	rootCmd.Flags().Bool("tcp", false, "run TCP tests. Default is to run all tests.")
+	rootCmd.Flags().StringP("out", "o", time.Now().Format("20060102150405"), "optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name.")
+	rootCmd.Flags().Bool("log", false, "enables logging to the file specified by the --out flag.")
 }
 
 // initConfig reads in config file and ENV variables if set.

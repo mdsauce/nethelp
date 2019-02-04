@@ -16,6 +16,9 @@ Flags:
       --tcp             run TCP tests. Default is to run all tests.
 ```
 
+### Downloading
+Download the binary for your operating system at https://github.com/mdsauce/nethelp/releases.
+
 ### Build
 Built using [Cobra](https://github.com/spf13/cobra) and go1.11.  Cobra is basically a templating tool for CLI and generator for the file structure. Cobra is built  on top of [pflag](https://github.com/spf13/pflag) which expands on the std library flag package in Go.
 

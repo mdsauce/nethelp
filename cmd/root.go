@@ -96,6 +96,7 @@ func Execute() {
 }
 
 func init() {
+
 	log.SetFormatter(&log.TextFormatter{})
 	cobra.OnInitialize(initConfig)
 
@@ -118,6 +119,7 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	checkForEnvProxies()
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -224,4 +226,16 @@ func assembleVDCEndpoints() []string {
 	vdcRESTEndpoints[0] = endpoint
 	fmt.Println(vdcRESTEndpoints[0])
 	return vdcRESTEndpoints
+}
+
+func checkForEnvProxies() {
+	proxyList := []string{"HTTP_PROXY", "HTTPS_PROXY", "PROXY", "ALL_PROXY"}
+	for _, proxy := range proxyList {
+		if os.Getenv(proxy) != "" {
+			log.WithFields(log.Fields{
+				"env var":         proxy,
+				"potential proxy": os.Getenv(proxy),
+			}).Warn("An environment variable for a Proxy may exist.  This will NOT be automatically used.  You must use the --proxy flag.")
+		}
+	}
 }

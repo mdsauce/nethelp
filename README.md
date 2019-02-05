@@ -3,17 +3,18 @@ Nethelp will assist with finding out what is blocking outbound connections from 
 
 ### Usage
 ```
+Usage:
   nethelp [flags]
 
 Flags:
-      --config string   config file path (default is $HOME/.nethelp.yaml)
-  -h, --help            help for nethelp
-      --http            run HTTP tests. Default is to run all tests.
-      --log             enables logging to the file specified by the --out flag.
-  -l, --lucky           feeling lucky?  Disable the proxy check at startup and find out if it works during runtime.
-  -o, --out string      optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name. (default "20190203234732")
-  -p, --proxy string    upstream proxy for nethelp to use. Enter like -p protocol://username:password@host:port
-      --tcp             run TCP tests. Default is to run all tests.
+  -h, --help           help for nethelp
+      --http           run HTTP tests. Default is to run all tests.
+      --log            enables logging to the file specified by the --out flag.
+  -l, --lucky          disable the proxy check at startup and instead test the proxy during execution.
+  -o, --out string     optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name. (default "20190204170837")
+  -p, --proxy string   upstream proxy for nethelp to use. Enter like -p protocol://username:password@host:port
+      --tcp            run TCP tests. Default is to only run HTTP tests.
+  -v, --verbose        print all logging levels
 ```
 
 ### Output
@@ -45,3 +46,8 @@ $ git clone git@github.com:mdsauce/nethelp.git
 2. Go the nethelp dir.  Use `go build` to build a local version in the current dir or `go install` to install one in the go/bin folder and add the binary to your path.
 
 If you're new to Go consider taking the tour https://tour.golang.org/list. 
+
+### Next Features
+* run VDC or RDC tests only
+* specify a data center, EU or US
+* 

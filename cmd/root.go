@@ -63,11 +63,7 @@ services used by Sauce Labs.`,
 			log.Fatal("Could not get output flag.")
 		}
 		if logging == true {
-			filename, err := cmd.Flags().GetString("out")
-			if err != nil {
-				log.Fatal("Could not get output flag.")
-			}
-			fp, err := os.OpenFile("./"+filename+".log", os.O_WRONLY|os.O_CREATE, 0755)
+			fp, err := os.OpenFile("./"+time.Now().Format("20060102150405")+".log", os.O_WRONLY|os.O_CREATE, 0755)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -79,9 +75,6 @@ services used by Sauce Labs.`,
 			diagnostics.PublicSites(sitelist)
 			diagnostics.SauceServices(vdcEndpoints)
 			diagnostics.RDCServices(rdcEndpoints)
-			if vdcRESTEndpoints != nil {
-				diagnostics.VDCREST(vdcRESTEndpoints)
-			}
 		} else {
 			runHTTP, err := cmd.Flags().GetBool("http")
 			if err != nil {
@@ -91,16 +84,20 @@ services used by Sauce Labs.`,
 			if err != nil {
 				log.Fatal("Could not get the TCP flag. ", err)
 			}
+			runAPI, err := cmd.Flags().GetBool("api")
+			if err != nil {
+				log.Fatal("Could not get the API flag. ", err)
+			}
 			if runHTTP {
 				diagnostics.PublicSites(sitelist)
 				diagnostics.SauceServices(vdcEndpoints)
 				diagnostics.RDCServices(rdcEndpoints)
-				if vdcRESTEndpoints != nil {
-					diagnostics.VDCREST(vdcRESTEndpoints)
-				}
 			}
 			if runTCP {
 				diagnostics.TCPConns(tcplist, proxyURL)
+			}
+			if runAPI {
+				diagnostics.VDCREST(vdcRESTEndpoints)
 			}
 		}
 	},
@@ -123,20 +120,19 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file path (default is $HOME/.nethelp.yaml)")
+	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file path (default is $HOME/.nethelp.yaml)")
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "print all logging levels")
 	rootCmd.PersistentFlags().StringVarP(&userProxy, "proxy", "p", "", "upstream proxy for nethelp to use. Enter like -p protocol://username:password@host:port")
-	// TODO
-	// root.rootCmd.PersistentFlags().StringVarP(&proxyAuth, "auth", "a", "", "authentication for upstream proxy.  use like -a username:password.")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.Flags().BoolP("lucky", "l", false, "feeling lucky?  Disable the proxy check at startup and find out if it works during runtime.")
+	rootCmd.Flags().BoolP("lucky", "l", false, "disable the proxy check at startup and instead test the proxy during execution.")
 	rootCmd.Flags().Bool("http", false, "run HTTP tests. Default is to run all tests.")
-	rootCmd.Flags().Bool("tcp", false, "run TCP tests. Default is to run all tests.")
-	rootCmd.Flags().StringP("out", "o", time.Now().Format("20060102150405"), "optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name.")
+	rootCmd.Flags().Bool("tcp", false, "run TCP tests. Default is to only run HTTP tests.")
+	// rootCmd.Flags().StringP("out", "o", time.Now().Format("20060102150405"), "optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name.")
 	rootCmd.Flags().Bool("log", false, "enables logging to the file specified by the --out flag.")
+	rootCmd.Flags().Bool("api", false, "run API tests.  Requires that you have $SAUCE_USERNAME and $SAUCE_ACCESS_KEY environment variables.")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -236,8 +232,12 @@ func runDefault(cmd *cobra.Command) bool {
 	if err != nil {
 		log.Fatal("Could not get the TCP flag. ", err)
 	}
-	if runHTTP || runTCP {
-		log.Debug("HTTP or TCP flag used.  Not running default test set.", runHTTP, runTCP)
+	runAPI, err := cmd.Flags().GetBool("api")
+	if err != nil {
+		log.Fatal("Could not get the API flag. ", err)
+	}
+	if runHTTP || runTCP || runAPI {
+		log.Debug("HTTP or TCP flag used.  Not running default test set.")
 		return false
 	}
 	return true

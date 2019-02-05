@@ -35,6 +35,7 @@ On Mac and Linux make this file executable by running `$ chmod 755`.  For exampl
 ```
 $ chmod 755 nethelp-linux
 ```
+You may get a `permission denied` type error if you try and run without this step.
 
 ### Build
 Built using [Cobra](https://github.com/spf13/cobra) and go1.11.  Cobra is basically a templating tool for CLI and generator for the file structure. Cobra is built  on top of [pflag](https://github.com/spf13/pflag) which expands on the std library flag package in Go.

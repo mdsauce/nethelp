@@ -20,7 +20,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"time"
 
 	"github.com/mdsauce/nethelp/diagnostics"
 	homedir "github.com/mitchellh/go-homedir"
@@ -49,6 +48,7 @@ services used by Sauce Labs.`,
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
 		proxyURL := addProxy(userProxy, cmd)
 		log.Info("Proxy URL: ", proxyURL)
+		checkForEnvProxies()
 
 		//default sitelists
 		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
@@ -63,7 +63,7 @@ services used by Sauce Labs.`,
 			log.Fatal("Could not get output flag.")
 		}
 		if logging == true {
-			fp, err := os.OpenFile("./"+time.Now().Format("20060102150405")+".log", os.O_WRONLY|os.O_CREATE, 0755)
+			fp, err := os.OpenFile("./nethelp.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -71,34 +71,33 @@ services used by Sauce Labs.`,
 			log.SetOutput(fp)
 		}
 
-		if runDefault(cmd) {
+		runHTTP, err := cmd.Flags().GetBool("http")
+		if err != nil {
+			log.Fatal("Could not get the HTTP flag. ", err)
+		}
+		runTCP, err := cmd.Flags().GetBool("tcp")
+		if err != nil {
+			log.Fatal("Could not get the TCP flag. ", err)
+		}
+		runAPI, err := cmd.Flags().GetBool("api")
+		if err != nil {
+			log.Fatal("Could not get the API flag. ", err)
+		}
+		if runHTTP {
 			diagnostics.PublicSites(sitelist)
 			diagnostics.SauceServices(vdcEndpoints)
 			diagnostics.RDCServices(rdcEndpoints)
-		} else {
-			runHTTP, err := cmd.Flags().GetBool("http")
-			if err != nil {
-				log.Fatal("Could not get the HTTP flag. ", err)
-			}
-			runTCP, err := cmd.Flags().GetBool("tcp")
-			if err != nil {
-				log.Fatal("Could not get the TCP flag. ", err)
-			}
-			runAPI, err := cmd.Flags().GetBool("api")
-			if err != nil {
-				log.Fatal("Could not get the API flag. ", err)
-			}
-			if runHTTP {
-				diagnostics.PublicSites(sitelist)
-				diagnostics.SauceServices(vdcEndpoints)
-				diagnostics.RDCServices(rdcEndpoints)
-			}
-			if runTCP {
-				diagnostics.TCPConns(tcplist, proxyURL)
-			}
-			if runAPI {
-				diagnostics.VDCREST(vdcRESTEndpoints)
-			}
+		}
+		if runTCP {
+			diagnostics.TCPConns(tcplist, proxyURL)
+		}
+		if runAPI {
+			diagnostics.VDCREST(vdcRESTEndpoints)
+		}
+		if runDefault(runHTTP, runTCP, runAPI) {
+			diagnostics.PublicSites(sitelist)
+			diagnostics.SauceServices(vdcEndpoints)
+			diagnostics.RDCServices(rdcEndpoints)
 		}
 	},
 }
@@ -137,7 +136,6 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	checkForEnvProxies()
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -223,21 +221,9 @@ func checkProxy(rawProxy string) {
 	log.Info("Proxy OK.  Able to reach www.saucelabs.com.", resp)
 }
 
-func runDefault(cmd *cobra.Command) bool {
-	runHTTP, err := cmd.Flags().GetBool("http")
-	if err != nil {
-		log.Fatal("Could not get the HTTP flag. ", err)
-	}
-	runTCP, err := cmd.Flags().GetBool("tcp")
-	if err != nil {
-		log.Fatal("Could not get the TCP flag. ", err)
-	}
-	runAPI, err := cmd.Flags().GetBool("api")
-	if err != nil {
-		log.Fatal("Could not get the API flag. ", err)
-	}
+func runDefault(runHTTP bool, runTCP bool, runAPI bool) bool {
 	if runHTTP || runTCP || runAPI {
-		log.Debug("HTTP or TCP flag used.  Not running default test set.")
+		log.Debug("Specific test flag used.  Not running default test set.")
 		return false
 	}
 	return true

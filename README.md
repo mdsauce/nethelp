@@ -7,11 +7,11 @@ Usage:
   nethelp [flags]
 
 Flags:
+      --api            run API tests.  Requires that you have $SAUCE_USERNAME and $SAUCE_ACCESS_KEY environment variables.
   -h, --help           help for nethelp
       --http           run HTTP tests. Default is to run all tests.
       --log            enables logging to the file specified by the --out flag.
   -l, --lucky          disable the proxy check at startup and instead test the proxy during execution.
-  -o, --out string     optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name. (default "20190204170837")
   -p, --proxy string   upstream proxy for nethelp to use. Enter like -p protocol://username:password@host:port
       --tcp            run TCP tests. Default is to only run HTTP tests.
   -v, --verbose        print all logging levels

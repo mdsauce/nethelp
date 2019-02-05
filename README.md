@@ -30,9 +30,9 @@ Flags:
 
 ### Downloading
 Download the binary for your operating system at https://github.com/mdsauce/nethelp/releases.
-On Mac and Linux make this file executable by running `$ chmod 777`.  For example:
+On Mac and Linux make this file executable by running `$ chmod 755`.  For example:
 ```
-$ chmod 777 nethelp-linux
+$ chmod 755 nethelp-linux
 ```
 
 ### Build

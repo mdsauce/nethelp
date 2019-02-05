@@ -50,6 +50,9 @@ services used by Sauce Labs.`,
 			log.Fatal("Could not get output flag.")
 		}
 		if logging == true {
+			log.SetFormatter(&log.TextFormatter{
+				DisableColors: true,
+			})
 			fp, err := os.OpenFile("./nethelp.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 			if err != nil {
 				log.Fatal(err)

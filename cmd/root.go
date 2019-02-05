@@ -68,7 +68,7 @@ services used by Sauce Labs.`,
 		//default sitelists
 		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "ondemand.eu-central-1.saucelabs.com:80", "ondemand.eu-central-1.saucelabs.com:443", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
 		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
-		vdcEndpoints = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80", "ondemand.eu-central-1.saucelabs.com:80", "ondemand.eu-central-1.saucelabs.com:443"}
+		vdcEndpoints = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80", "http://ondemand.eu-central-1.saucelabs.com:80", "https://ondemand.eu-central-1.saucelabs.com:443"}
 		// TODO
 		rdcEndpoints = []string{"https://us1.appium.testobject.com/wd/hub/session", "https://eu1.appium.testobject.com/wd/hub/session"}
 		vdcRESTEndpoints := assembleVDCEndpoints()
@@ -239,8 +239,8 @@ func assembleVDCEndpoints() []string {
 	vdcRESTEndpoints := []string{""}
 	endpoint := fmt.Sprintf("https://saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
 	vdcRESTEndpoints[0] = endpoint
-	endpoint := fmt.Sprintf("https://eu-central-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
-	vdcRESTEndpoints[1] = endpoint
+	endpoint = fmt.Sprintf("https://eu-central-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
+	vdcRESTEndpoints = append(vdcRESTEndpoints, endpoint)
 	return vdcRESTEndpoints
 }
 

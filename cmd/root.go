@@ -45,19 +45,6 @@ services used by Sauce Labs.`,
 		log.SetOutput(os.Stdout)
 		log.SetLevel(log.WarnLevel)
 		VerboseMode(cmd)
-		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
-		proxyURL := addProxy(userProxy, cmd)
-		log.Info("Proxy URL: ", proxyURL)
-		checkForEnvProxies()
-
-		//default sitelists
-		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
-		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
-		vdcEndpoints = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80"}
-		// TODO
-		rdcEndpoints = []string{"https://us1.appium.testobject.com/wd/hub/session", "https://eu1.appium.testobject.com/wd/hub/session"}
-		vdcRESTEndpoints := assembleVDCEndpoints()
-
 		logging, err := cmd.Flags().GetBool("log")
 		if err != nil {
 			log.Fatal("Could not get output flag.")
@@ -70,6 +57,18 @@ services used by Sauce Labs.`,
 			defer fp.Close()
 			log.SetOutput(fp)
 		}
+		// log.Debugf("Using config file: %s", viper.ConfigFileUsed())
+		proxyURL := addProxy(userProxy, cmd)
+		log.Info("Proxy URL: ", proxyURL)
+		checkForEnvProxies()
+
+		//default sitelists
+		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
+		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
+		vdcEndpoints = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80"}
+		// TODO
+		rdcEndpoints = []string{"https://us1.appium.testobject.com/wd/hub/session", "https://eu1.appium.testobject.com/wd/hub/session"}
+		vdcRESTEndpoints := assembleVDCEndpoints()
 
 		runHTTP, err := cmd.Flags().GetBool("http")
 		if err != nil {

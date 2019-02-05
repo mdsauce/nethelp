@@ -17,9 +17,11 @@ package cmd
 import (
 	"crypto/tls"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/mdsauce/nethelp/diagnostics"
 	homedir "github.com/mitchellh/go-homedir"
@@ -134,6 +136,14 @@ func init() {
 	// rootCmd.Flags().StringP("out", "o", time.Now().Format("20060102150405"), "optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name.")
 	rootCmd.Flags().Bool("log", false, "enables logging to the file specified by the --out flag.")
 	rootCmd.Flags().Bool("api", false, "run API tests.  Requires that you have $SAUCE_USERNAME and $SAUCE_ACCESS_KEY environment variables.")
+
+	// http client settings
+	http.DefaultTransport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 5 * time.Second,
+		}).Dial,
+		TLSHandshakeTimeout: 5 * time.Second,
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -16,6 +16,18 @@ Flags:
       --tcp             run TCP tests. Default is to run all tests.
 ```
 
+### Output
+```
+./nethelp-mac
+[✓] https://status.saucelabs.com is reachable 200 OK
+[✓] https://www.duckduckgo.com is reachable 200 OK
+[✓] https://ondemand.saucelabs.com:443 is reachable 200 OK
+[✓] http://ondemand.saucelabs.com:80 is reachable 200 OK
+[✓] https://us1.appium.testobject.com/wd/hub/session is reachable but returned 401 Unauthorized
+[✓] https://eu1.appium.testobject.com/wd/hub/session is reachable but returned 401 Unauthorized
+[✓] https://saucelabs.com/rest/v1/max.dobeck/tunnels is reachable 200 OK
+```
+
 ### Downloading
 Download the binary for your operating system at https://github.com/mdsauce/nethelp/releases.
 

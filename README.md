@@ -30,6 +30,10 @@ Flags:
 
 ### Downloading
 Download the binary for your operating system at https://github.com/mdsauce/nethelp/releases.
+On Mac and Linux make this file executable by running `$ chmod 777`.  For example:
+```
+$ chmod 777 nethelp-linux
+```
 
 ### Build
 Built using [Cobra](https://github.com/spf13/cobra) and go1.11.  Cobra is basically a templating tool for CLI and generator for the file structure. Cobra is built  on top of [pflag](https://github.com/spf13/pflag) which expands on the std library flag package in Go.

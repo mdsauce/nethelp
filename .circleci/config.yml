@@ -5,4 +5,5 @@ jobs:
       - image: circleci/golang:1.11.5
     steps:
       - checkout
+      - run: pwd && ls 
       - run: go install

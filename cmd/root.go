@@ -136,6 +136,8 @@ func init() {
 	// rootCmd.Flags().StringP("out", "o", time.Now().Format("20060102150405"), "optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name.")
 	rootCmd.Flags().Bool("log", false, "enables logging to the file specified by the --out flag.")
 	rootCmd.Flags().Bool("api", false, "run API tests.  Requires that you have $SAUCE_USERNAME and $SAUCE_ACCESS_KEY environment variables.")
+	rootCmd.Flags().String("cloud","all", "Specify which cloud you would like to run diagnostics against.  Options are VDC or RDC.")
+	rootCmd.Flags().String("dc", "all", "Specify which continental data centers you want run diagnostics against.  Options are EU or DC.")
 
 	// http client settings
 	http.DefaultTransport = &http.Transport{

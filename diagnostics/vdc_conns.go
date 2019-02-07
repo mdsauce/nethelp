@@ -10,7 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// SauceServices sends HTTP requests to Sauce endpoints
+// SauceServices sends HTTP requests to Sauce endpoints to prove
+// tests could theoretically be created and the data centers are reachable
 func SauceServices(sauceEndpoints []string) {
 	for _, endpoint := range sauceEndpoints {
 		u, err := url.ParseRequestURI(endpoint)
@@ -43,7 +44,10 @@ func SauceServices(sauceEndpoints []string) {
 	}
 }
 
-// VdcAPI connects to the rest endpoint with env variable credentials
+// VdcAPI connects to VDC REST endpoints to make sure
+// 1) credentials work
+// 2) api is reachable
+// 3) api retrieves the expected data if 1 & 2 are true
 func VdcAPI(vdcRESTEndpoints []string) {
 	username := os.Getenv("SAUCE_USERNAME")
 	apiKey := os.Getenv("SAUCE_ACCESS_KEY")

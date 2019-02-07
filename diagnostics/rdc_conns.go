@@ -7,7 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// RDCServices makes connections to the main RDC endpoints required to run tests
+// RDCServices makes connections to the main RDC endpoints to prove
+// that the endpoints are reachable from the machine
 func RDCServices(rdcEndpoints []string) {
 	for _, endpoint := range rdcEndpoints {
 		log.Debug("Sending POST req to ", endpoint)

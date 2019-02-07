@@ -96,7 +96,7 @@ services used by Sauce Labs.`,
 			diagnostics.TCPConns(tcplist, proxyURL)
 		}
 		if runAPI {
-			diagnostics.VDCREST(vdcRESTEndpoints)
+			diagnostics.VdcAPI(vdcRESTEndpoints)
 		}
 		if runDefault(runHTTP, runTCP, runAPI) {
 			diagnostics.PublicSites(sitelist)

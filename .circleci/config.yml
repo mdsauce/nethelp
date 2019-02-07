@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.11.5
-    working_directory: /go/src/github.com/mdsauce
+    working_directory: /go/src/github.com/mdsauce/nethelp
     steps:
       - checkout
       - run: pwd && ls 

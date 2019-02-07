@@ -16,7 +16,7 @@ Flags:
       --tcp            run TCP tests. Default is to only run HTTP tests.
   -v, --verbose        print all logging levels
 ```
-
+* Default Usage will make HTTP and HTTPS connections to various endpoints
 ```
 ./nethelp-mac
 [✓] https://status.saucelabs.com is reachable 200 OK
@@ -27,11 +27,28 @@ Flags:
 [✓] https://eu1.appium.testobject.com/wd/hub/session is reachable but returned 401 Unauthorized
 ```
 
+* Run HTTP and API tests with a proxy upstream from your machine
+```
+$ nethelp --api --http -p myUsername:myPassword@upstream.proxy.inc.com:8080
+
+```
+
+* Log in Verbose mode and save to a logfile
+```
+$ nethelp -v --log
+```
+
+* Disable the initial proxy validation
+```
+$ nethelp -l
+```
+
 ### Downloading and using
 Download the binary for your operating system at https://github.com/mdsauce/nethelp/releases.
-On Mac and Linux make this file executable by running `$ chmod 755`.  For example:
+On Mac and Linux make this file executable by running `$ chmod 755`.  For example on a Linux machine:
 ```
-$ chmod 755 nethelp-linux
+$ cd ~/Downloads/nethelp-linux
+$ chmod 755 nethelp
 ```
 You may get a `permission denied` type error if you try and run without this step.
 

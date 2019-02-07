@@ -1,8 +1,9 @@
 # nethelp
 Nethelp will assist with finding out what is blocking outbound connections from the machine by sending HTTP and TCP connections to servies used by Sauce Labs.
 
-### Help
+### Usage
 ```
+$ nethelp --help
 Usage:
   nethelp [flags]
 

@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.11.5
+    working_directory: /go/nethelp
+    steps:
+      - checkout
+      - run: pwd && ls 
+      - run: go install

@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/mdsauce/nethelp.svg?style=svg)](https://circleci.com/gh/mdsauce/nethelp)
+
 # nethelp
 Nethelp will assist with finding out what is blocking outbound connections from the machine by sending HTTP and TCP connections to servies used by Sauce Labs.
 

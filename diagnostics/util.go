@@ -11,7 +11,8 @@ import (
 	"golang.org/x/net/proxy"
 )
 
-//PublicSites attempts to send HTTP requests to sites that SHOULD be reachable.
+// PublicSites attempts to prove that the machine has internet
+// connectivity and is not being blocked by a private network.
 func PublicSites(sitelist []string) {
 	for _, site := range sitelist {
 		log.Debug("Sending GET req to ", site)
@@ -26,7 +27,8 @@ func PublicSites(sitelist []string) {
 	}
 }
 
-//TCPConns attempts to open various TCP connections to the provided sites
+// TCPConns attempts to open various TCP connections to the provided sites
+// This proves that with or without a proxy the TCP connections can be created.
 func TCPConns(sitelist []string, proxyURL *url.URL) {
 	if proxyURL != nil {
 		log.Warn("May fail if you are not using a SOCKS5 Proxy.")

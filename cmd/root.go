@@ -38,7 +38,13 @@ var sitelist, tcplist, vdcEndpoints, rdcEndpoints []string
 var rootCmd = &cobra.Command{
 	Use:   "nethelp",
 	Short: "Helper to troubleshoot problems running tests on Sauce Labs.",
-	Long: `Nethelp will assist with finding out what is blocking outbound 
+	Long: `
+ ___  __ _ _   _  ___ ___   / / __   ___| |_| |__   ___| |_ __  
+/ __|/ _  | | | |/ __/ _ \ / / '_ \ / _ \ __| '_ \ / _ \ | '_ \ 
+\__ \ (_| | |_| | (_|  __// /| | | |  __/ |_| | | |  __/ | |_) |
+|___/\__,_|\__,_|\___\___/_/ |_| |_|\___|\__|_| |_|\___|_| .__/ 
+                                                         |_|  
+	Nethelp will assist with finding out what is blocking outbound 
 connections from the machine by sending HTTP and TCP connections to 
 services used by Sauce Labs.`,
 	// Uncomment the following line if your bare application

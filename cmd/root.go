@@ -112,7 +112,7 @@ services used during typical Sauce Labs usage.`,
 		whichDC = strings.ToLower(whichDC)
 
 		// Run the diagnostics that the user passed in
-		if whichCloud != "all" {
+		if whichCloud != "all" && runAPI == false {
 			if whichCloud != "vdc" && whichCloud != "rdc" {
 				log.Fatal("The parameter is not valid.  Only all, vdc, or rdc is allowed. ", whichCloud)
 			}
@@ -200,7 +200,7 @@ func init() {
 	// when this action is called directly.
 	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.Flags().BoolP("lucky", "l", false, "disable the proxy check at startup and instead test the proxy during execution.")
-	rootCmd.Flags().Bool("tcp", false, "run TCP tests. Default is to only run HTTP tests.")
+	rootCmd.Flags().Bool("tcp", false, "run TCP tests. Will always run against all endpoints.")
 	// rootCmd.Flags().StringP("out", "o", time.Now().Format("20060102150405"), "optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name.")
 	rootCmd.Flags().Bool("log", false, "enables logging to the file specified by the --out flag.")
 	rootCmd.Flags().Bool("api", false, "run API tests.  Requires that you have $SAUCE_USERNAME and $SAUCE_ACCESS_KEY environment variables.")

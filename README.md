@@ -48,10 +48,9 @@ $ nethelp -l
 
 * Run tests only against a specific data center and cloud service
 ```
-$ nethelp  --cloud vdc --api --dc na
+$ nethelp  --cloud vdc --dc na
 [✓] https://ondemand.saucelabs.com:443 is reachable 200 OK
 [✓] http://ondemand.saucelabs.com:80 is reachable 200 OK
-[✓] https://saucelabs.com/rest/v1/max.dobeck/tunnels is reachable 200 OK
 ```
 
 ### Downloading and using

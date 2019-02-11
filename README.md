@@ -56,18 +56,16 @@ $ chmod 755 nethelp
 You may get a `permission denied` type error if you try and run without this step.
 
 ### Build
-Built using [Cobra](https://github.com/spf13/cobra) and go1.11.  Cobra is basically a templating tool for CLI and generator for the file structure. Cobra is built  on top of [pflag](https://github.com/spf13/pflag) which expands on the std library flag package in Go.
+Built using [Cobra](https://github.com/spf13/cobra) and go v1.11.  Cobra is an opinionated CLI generator. Cobra is built  on top of [pflag](https://github.com/spf13/pflag) which expands on the std library flag package in Go.
 
 1. Clone the repo.
 ```
 $ git clone git@github.com:mdsauce/nethelp.git
 ```
-2. Go the nethelp dir.  Use `go build` to build a local version in the current dir or `go install` to install one in the go/bin folder and add the binary to your path.
+2. Go the nethelp dir.  Use `$ go build` to build a local version in the current dir or `$ go install` to install one in the `~/go/bin` folder and add the `nethelp` binary to your path.
 
-If you're new to Go consider taking the tour https://tour.golang.org/list. 
+If you're new to Go consider taking the tour https://tour.golang.org/list.
 
 ### Next Features
-* run VDC or RDC tests only with a `cloud` flag
-* specify a data center, EU or US with a `dc` flag
 * create a test session with a specific name then quit it.  This will prove a connection can be made to the services and a test can start with user credentials.
 * recover from failures automatically, record the failure, then continue the rest of the tests.

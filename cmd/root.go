@@ -32,7 +32,7 @@ import (
 
 var cfgFile string
 var userProxy string
-var sitelist, tcplist, vdcEndpoints, rdcEndpoints []string
+var sitelist, tcplist, vdcNA, vdcEU, rdcNA, rdcEU []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -44,15 +44,22 @@ var rootCmd = &cobra.Command{
 \__ \ (_| | |_| | (_|  __// /| | | |  __/ |_| | | |  __/ | |_) |
 |___/\__,_|\__,_|\___\___/_/ |_| |_|\___|\__|_| |_|\___|_| .__/ 
                                                          |_|  
-	Nethelp will assist with finding out what is blocking outbound 
-connections from the machine by sending HTTP and TCP connections to 
-services used by Sauce Labs.`,
+Nethelp will help find out what is blocking outbound 
+connections by sending requests to 
+services used during typical Sauce Labs usage.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
+		// Logging and Verbosity setup
 		log.SetOutput(os.Stdout)
 		log.SetLevel(log.WarnLevel)
-		VerboseMode(cmd)
+		enableVerbose, err := cmd.PersistentFlags().GetBool("verbose")
+		if err != nil {
+			log.Fatal("Verbose flag broke.", err)
+		}
+		if enableVerbose == true {
+			log.SetLevel(log.TraceLevel)
+		}
 		logging, err := cmd.Flags().GetBool("log")
 		if err != nil {
 			log.Fatal("Could not get output flag.")
@@ -68,23 +75,21 @@ services used by Sauce Labs.`,
 			defer fp.Close()
 			log.SetOutput(fp)
 		}
-		// log.Debugf("Using config file: %s", viper.ConfigFileUsed())
+
+		// Proxy setup and configuration
 		proxyURL := addProxy(userProxy, cmd)
 		log.Info("Proxy URL: ", proxyURL)
 		checkForEnvProxies()
 
-		//default sitelists
+		// Default APIs and service endpoints
 		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "ondemand.eu-central-1.saucelabs.com:80", "ondemand.eu-central-1.saucelabs.com:443", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
 		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
-		vdcEndpoints = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80", "http://ondemand.eu-central-1.saucelabs.com:80", "https://ondemand.eu-central-1.saucelabs.com:443"}
-		// TODO
-		rdcEndpoints = []string{"https://us1.appium.testobject.com/wd/hub/session", "https://eu1.appium.testobject.com/wd/hub/session"}
+		vdcNA = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80"}
+		vdcEU = []string{"http://ondemand.eu-central-1.saucelabs.com:80", "https://ondemand.eu-central-1.saucelabs.com:443"}
+		rdcNA = []string{"https://us1.appium.testobject.com/wd/hub/session"}
+		rdcEU = []string{"https://eu1.appium.testobject.com/wd/hub/session"}
 		vdcRESTEndpoints := assembleVDCEndpoints()
 
-		runHTTP, err := cmd.Flags().GetBool("http")
-		if err != nil {
-			log.Fatal("Could not get the HTTP flag. ", err)
-		}
 		runTCP, err := cmd.Flags().GetBool("tcp")
 		if err != nil {
 			log.Fatal("Could not get the TCP flag. ", err)
@@ -93,21 +98,17 @@ services used by Sauce Labs.`,
 		if err != nil {
 			log.Fatal("Could not get the API flag. ", err)
 		}
-		if runHTTP {
-			diagnostics.PublicSites(sitelist)
-			diagnostics.SauceServices(vdcEndpoints)
-			diagnostics.RDCServices(rdcEndpoints)
-		}
 		if runTCP {
 			diagnostics.TCPConns(tcplist, proxyURL)
 		}
 		if runAPI {
 			diagnostics.VdcAPI(vdcRESTEndpoints)
 		}
-		if runDefault(runHTTP, runTCP, runAPI) {
+		if runDefault(runTCP, runAPI) {
 			diagnostics.PublicSites(sitelist)
-			diagnostics.SauceServices(vdcEndpoints)
-			diagnostics.RDCServices(rdcEndpoints)
+			diagnostics.SauceServices(vdcNA)
+			diagnostics.RDCServices(rdcEU)
+			diagnostics.RDCServices(rdcNA)
 		}
 	},
 }
@@ -137,13 +138,12 @@ func init() {
 	// when this action is called directly.
 	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.Flags().BoolP("lucky", "l", false, "disable the proxy check at startup and instead test the proxy during execution.")
-	rootCmd.Flags().Bool("http", false, "run HTTP tests. Default is to run all tests.")
 	rootCmd.Flags().Bool("tcp", false, "run TCP tests. Default is to only run HTTP tests.")
 	// rootCmd.Flags().StringP("out", "o", time.Now().Format("20060102150405"), "optional output file for logging. Defaults to timestamp file in the current dir.  Only use if you want a custom log name.")
 	rootCmd.Flags().Bool("log", false, "enables logging to the file specified by the --out flag.")
 	rootCmd.Flags().Bool("api", false, "run API tests.  Requires that you have $SAUCE_USERNAME and $SAUCE_ACCESS_KEY environment variables.")
-	rootCmd.Flags().String("cloud","all", "Specify which cloud you would like to run diagnostics against.  Options are VDC or RDC.")
-	rootCmd.Flags().String("dc", "all", "Specify which continental data centers you want run diagnostics against.  Options are EU or DC.")
+	rootCmd.Flags().String("cloud", "all", "options are: VDC or RDC.  Select which services you'd like to test, Virtual Device Cloud or Real Device Cloud respectively.")
+	rootCmd.Flags().String("dc", "all", "options are: EU or NA.  Choose which data centers you want run diagnostics against, Europe or North America respectively.")
 
 	// http client settings
 	http.DefaultTransport = &http.Transport{
@@ -179,17 +179,6 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
-	}
-}
-
-// VerboseMode enables Trace level logging and shows all logs
-func VerboseMode(cmd *cobra.Command) {
-	enableVerbose, err := cmd.PersistentFlags().GetBool("verbose")
-	if err != nil {
-		log.Fatal("Verbose flag broke.", err)
-	}
-	if enableVerbose == true {
-		log.SetLevel(log.TraceLevel)
 	}
 }
 
@@ -241,14 +230,16 @@ func checkProxy(rawProxy string) {
 	log.Info("Proxy OK.  Able to reach www.saucelabs.com.", resp)
 }
 
-func runDefault(runHTTP bool, runTCP bool, runAPI bool) bool {
-	if runHTTP || runTCP || runAPI {
+func runDefault(runTCP bool, runAPI bool) bool {
+	if runTCP || runAPI {
 		log.Debug("Specific test flag used.  Not running default test set.")
 		return false
 	}
 	return true
 }
 
+// assembleVDCEndpoints interpolates user variables like
+// username and their sauce api key to create a valid URI
 func assembleVDCEndpoints() []string {
 	if os.Getenv("SAUCE_USERNAME") == "" {
 		log.Info("No Environment Variables found.  Not running VDC REST endpoint tests.")

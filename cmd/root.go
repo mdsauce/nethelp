@@ -90,6 +90,7 @@ services used during typical Sauce Labs usage.`,
 		rdcEU = []string{"https://eu1.appium.testobject.com/wd/hub/session"}
 		vdcRESTEndpoints := assembleVDCEndpoints()
 
+		// Collect the flags to decide which diagnostics to run
 		runTCP, err := cmd.Flags().GetBool("tcp")
 		if err != nil {
 			log.Fatal("Could not get the TCP flag. ", err)
@@ -98,13 +99,23 @@ services used during typical Sauce Labs usage.`,
 		if err != nil {
 			log.Fatal("Could not get the API flag. ", err)
 		}
+		whichDC, err := cmd.Flags().GetString("dc")
+		if err != nil {
+			log.Fatal("Could not get the dc flag. ", err)
+		}
+		whichCloud, err := cmd.Flags().GetString("cloud")
+		if err != nil {
+			log.Fatal("Could not get the cloud flag. ", err)
+		}
+
+		// Run the diagnostics that the user passed in
 		if runTCP {
 			diagnostics.TCPConns(tcplist, proxyURL)
 		}
 		if runAPI {
 			diagnostics.VdcAPI(vdcRESTEndpoints)
 		}
-		if runDefault(runTCP, runAPI) {
+		if runDefault(runTCP, runAPI) && whichDC == "all" && whichCloud == "all" {
 			diagnostics.PublicSites(sitelist)
 			diagnostics.SauceServices(vdcNA)
 			diagnostics.RDCServices(rdcEU)

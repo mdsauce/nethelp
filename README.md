@@ -24,13 +24,11 @@ Flags:
       --cloud string   options are: VDC or RDC.  Select which services you'd like to test, Virtual Device Cloud or Real Device Cloud respectively. (default "all")
       --dc string      options are: EU or NA.  Choose which data centers you want run diagnostics against, Europe or North America respectively. (default "all")
   -h, --help           help for nethelp
-      --log            enables logging to the file specified by the --out flag.
+      --log            enables logging and creates a nethelp.log file.  Will automatically append data to the file in a non-destructive manner.
   -l, --lucky          disable the proxy check at startup and instead test the proxy during execution.
   -p, --proxy string   upstream proxy for nethelp to use. Enter like -p protocol://username:password@host:port
       --tcp            run TCP tests. Will always run against all endpoints.
   -v, --verbose        print all logging levels
-```
-* Default Usage will make HTTP and HTTPS connections to various endpoints
 ```
 ./nethelp-mac
 [✓] https://status.saucelabs.com is reachable 200 OK

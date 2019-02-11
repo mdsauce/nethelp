@@ -68,4 +68,4 @@ If you're new to Go consider taking the tour https://tour.golang.org/list.
 
 ### Next Features
 * create a test session with a specific name then quit it.  This will prove a connection can be made to the services and a test can start with user credentials.
-* recover from failures automatically, record the failure, then continue the rest of the tests.
+* recover from failures automatically, record the failure, then continue the rest of the diagnostics.

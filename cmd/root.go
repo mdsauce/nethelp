@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/mdsauce/nethelp/diagnostics"
@@ -88,7 +89,7 @@ services used during typical Sauce Labs usage.`,
 		vdcEU = []string{"http://ondemand.eu-central-1.saucelabs.com:80", "https://ondemand.eu-central-1.saucelabs.com:443"}
 		rdcNA = []string{"https://us1.appium.testobject.com/wd/hub/session"}
 		rdcEU = []string{"https://eu1.appium.testobject.com/wd/hub/session"}
-		vdcRESTEndpoints := assembleVDCEndpoints()
+		naVDCApi, euVDCApi := assembleVDCEndpoints()
 
 		// Collect the flags to decide which diagnostics to run
 		runTCP, err := cmd.Flags().GetBool("tcp")
@@ -107,17 +108,67 @@ services used during typical Sauce Labs usage.`,
 		if err != nil {
 			log.Fatal("Could not get the cloud flag. ", err)
 		}
+		whichCloud = strings.ToLower(whichCloud)
+		whichDC = strings.ToLower(whichDC)
 
 		// Run the diagnostics that the user passed in
+		if whichCloud != "all" {
+			if whichCloud != "vdc" && whichCloud != "rdc" {
+				log.Fatal("The parameter is not valid.  Only all, vdc, or rdc is allowed. ", whichCloud)
+			}
+			// VDC and a specific region
+			if whichCloud == "vdc" && whichDC != "all" {
+				if whichDC == "eu" {
+					diagnostics.VDCServices(vdcEU)
+				} else if whichDC == "na" {
+					diagnostics.VDCServices(vdcNA)
+				}
+			}
+			// RDC and a specific region
+			if whichCloud == "rdc" && whichDC != "all" {
+				if whichDC == "eu" {
+					diagnostics.RDCServices(rdcEU)
+				} else if whichDC == "na" {
+					diagnostics.RDCServices(rdcNA)
+				}
+			}
+			// VDC and all regions OR RDC and all regions
+			if whichCloud == "vdc" && whichDC == "all" {
+				diagnostics.VDCServices(vdcNA)
+				diagnostics.VDCServices(vdcEU)
+			} else if whichCloud == "rdc" && whichDC == "all" {
+				diagnostics.RDCServices(rdcEU)
+				diagnostics.RDCServices(rdcNA)
+			}
+		}
+		// Specific region and all clouds
+		if whichCloud == "all" && whichDC != "all" && runAPI == false {
+			if whichDC == "eu" {
+				diagnostics.VDCServices(vdcEU)
+				diagnostics.RDCServices(rdcEU)
+			} else if whichDC == "na" {
+				diagnostics.VDCServices(vdcNA)
+				diagnostics.RDCServices(rdcNA)
+			}
+		}
 		if runTCP {
 			diagnostics.TCPConns(tcplist, proxyURL)
 		}
 		if runAPI {
-			diagnostics.VdcAPI(vdcRESTEndpoints)
+			if whichDC == "na" {
+				diagnostics.VdcAPI(naVDCApi)			
+			}
+			if whichDC =="eu" {
+				diagnostics.VdcAPI(euVDCApi)	
+			}
+			if whichDC == "all"{
+				diagnostics.VdcAPI(naVDCApi)
+				diagnostics.VdcAPI(euVDCApi)
+			}
 		}
 		if runDefault(runTCP, runAPI) && whichDC == "all" && whichCloud == "all" {
 			diagnostics.PublicSites(sitelist)
-			diagnostics.SauceServices(vdcNA)
+			diagnostics.VDCServices(vdcNA)
 			diagnostics.RDCServices(rdcEU)
 			diagnostics.RDCServices(rdcNA)
 		}
@@ -251,17 +302,19 @@ func runDefault(runTCP bool, runAPI bool) bool {
 
 // assembleVDCEndpoints interpolates user variables like
 // username and their sauce api key to create a valid URI
-func assembleVDCEndpoints() []string {
+// Returns NA api list then EU api list
+func assembleVDCEndpoints() ([]string, []string) {
 	if os.Getenv("SAUCE_USERNAME") == "" {
 		log.Info("No Environment Variables found.  Not running VDC REST endpoint tests.")
-		return nil
+		return nil, nil
 	}
-	vdcRESTEndpoints := []string{""}
+	naVDCREST := []string{""}
+	euVDCREST := []string{""}
 	endpoint := fmt.Sprintf("https://saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
-	vdcRESTEndpoints[0] = endpoint
+	naVDCREST[0] = endpoint
 	endpoint = fmt.Sprintf("https://eu-central-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
-	vdcRESTEndpoints = append(vdcRESTEndpoints, endpoint)
-	return vdcRESTEndpoints
+	euVDCREST[0] = endpoint
+	return naVDCREST, euVDCREST
 }
 
 func checkForEnvProxies() {

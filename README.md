@@ -30,14 +30,6 @@ Flags:
       --tcp            run TCP tests. Will always run against all endpoints.
   -v, --verbose        print all logging levels
 ```
-./nethelp-mac
-[✓] https://status.saucelabs.com is reachable 200 OK
-[✓] https://www.duckduckgo.com is reachable 200 OK
-[✓] https://ondemand.saucelabs.com:443 is reachable 200 OK
-[✓] http://ondemand.saucelabs.com:80 is reachable 200 OK
-[✓] https://us1.appium.testobject.com/wd/hub/session is reachable but returned 401 Unauthorized
-[✓] https://eu1.appium.testobject.com/wd/hub/session is reachable but returned 401 Unauthorized
-```
 
 * Run HTTP and API tests with a proxy upstream from your machine
 ```

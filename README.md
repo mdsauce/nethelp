@@ -3,6 +3,20 @@
 # nethelp
 Nethelp will assist with finding out what is blocking outbound connections from the machine by sending HTTP and TCP connections to servies used by Sauce Labs.
 
+### Downloading and setting up
+1. Download the binary for your operating system from [the releases](https://github.com/mdsauce/nethelp/releases).  
+2. On Mac and Linux make this file executable by running `$ chmod 755`. You may get a `permission denied` type error if you try and run without the `chmod` step.   For example on a Linux machine:
+```
+$ cd ~/Downloads/nethelp-linux
+$ chmod 755 nethelp
+$ ./nethelp --help
+```
+3. Run `./nethelp` with whatever flags you need.
+
+If you are on a Linux or Mac OS and you have root access you can add the `nethelp` binary to your command line by moving it to `/usr/local/bin`.  
+
+You can also export the file `export PATH=$PATH:</path/to/file>` by adding that line to your `~/.bashrc` or `~/.bash_profile`.  More information here: https://unix.stackexchange.com/questions/3809/how-can-i-make-a-program-executable-from-everywhere.
+
 ### Usage
 ```
 $ nethelp --help
@@ -53,18 +67,6 @@ $ nethelp  --cloud vdc --dc na
 [✓] https://ondemand.saucelabs.com:443 is reachable 200 OK
 [✓] http://ondemand.saucelabs.com:80 is reachable 200 OK
 ```
-
-### Downloading and using
-Download the binary for your operating system from [this repository's releases section](https://github.com/mdsauce/nethelp/releases).  You may get a `permission denied` type error if you try and run without the `chmod` step. On Mac and Linux make this file executable by running `$ chmod 755`.  For example on a Linux machine:
-```
-$ cd ~/Downloads/nethelp-linux
-$ chmod 755 nethelp
-$ ./nethelp --help
-```
-
-If you are on a Linux or Mac OS and you have root access you can add the `nethelp` binary to your command line by moving it to `/usr/local/bin`.  
-
-You can also export the file `export PATH=$PATH:</path/to/file>` by adding that line to your `~/.bashrc` or `~/.bash_profile`.  More information here: https://unix.stackexchange.com/questions/3809/how-can-i-make-a-program-executable-from-everywhere.
 
 ### Build
 Built using [Cobra](https://github.com/spf13/cobra) and go v1.11.  Cobra is an opinionated CLI generator. Cobra is built  on top of [pflag](https://github.com/spf13/pflag) which expands on the std library flag package in Go.

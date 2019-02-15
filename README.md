@@ -60,8 +60,13 @@ On Mac and Linux make this file executable by running `$ chmod 755`.  For exampl
 ```
 $ cd ~/Downloads/nethelp-linux
 $ chmod 755 nethelp
+$ ./nethelp --help
 ```
 You may get a `permission denied` type error if you try and run without this step.
+
+If you are on a Linux or Mac OS and you have root access you can add the `nethelp` binary to your command line by moving it to `/usr/local/bin`.  
+
+You can also export the file `export PATH=$PATH:</path/to/file>` by adding that line to your `~/.bashrc` or `~/.bash_profile`.  More information here: https://unix.stackexchange.com/questions/3809/how-can-i-make-a-program-executable-from-everywhere.
 
 ### Build
 Built using [Cobra](https://github.com/spf13/cobra) and go v1.11.  Cobra is an opinionated CLI generator. Cobra is built  on top of [pflag](https://github.com/spf13/pflag) which expands on the std library flag package in Go.

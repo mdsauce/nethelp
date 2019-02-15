@@ -75,6 +75,7 @@ services used during typical Sauce Labs usage.`,
 			}
 			defer fp.Close()
 			log.SetOutput(fp)
+			log.Warn("This log only captures output from the --verbose flag.")
 		}
 
 		// Proxy setup and configuration

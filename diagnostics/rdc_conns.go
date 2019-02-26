@@ -21,9 +21,11 @@ func RDCServices(rdcEndpoints []string) {
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Fatalf("[ ] %s not reachable\n", endpoint)
+			}).Warnf("[ ] %s not reachable\n", endpoint)
 		}
 
-		respOutput(resp, endpoint)
+		if err == nil {
+			respOutput(resp, endpoint)
+		}
 	}
 }

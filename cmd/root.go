@@ -279,15 +279,9 @@ func checkProxy(rawProxy string) {
 		} else {
 			log.WithFields(log.Fields{
 				"error": err,
-				"msg":   "www.saucelabs.com not reachable with this proxy",
-				"resp":  *resp,
-			}).Fatal("Something is wrong with the proxy specified in your environment variables.  It cannot be used.")
+				"msg":   "www.saucelabs.com not reachable.",
+			}).Warn("You may have no internet access or a proxy may be in use.")
 		}
-	}
-	if resp.StatusCode != 200 {
-		log.WithFields(log.Fields{
-			"response": *resp,
-		}).Fatal("Something is wrong with the proxy.  It cannot was not able to reach a public website.")
 	}
 	log.Info("Proxy OK.  Able to reach www.saucelabs.com.", resp)
 }

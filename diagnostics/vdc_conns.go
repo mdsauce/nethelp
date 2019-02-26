@@ -37,10 +37,12 @@ func VDCServices(sauceEndpoints []string) {
 			log.WithFields(log.Fields{
 				"error":    err,
 				"endpoint": u,
-			}).Fatalf("[ ] %s not reachable\n", u)
+			}).Warnf("[ ] %s not reachable\n", u)
 		}
 
-		respOutput(resp, endpoint)
+		if err == nil {
+			respOutput(resp, endpoint)
+		}
 	}
 }
 

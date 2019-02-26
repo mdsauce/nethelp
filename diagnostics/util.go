@@ -20,10 +20,11 @@ func PublicSites(sitelist []string) {
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Fatalf("[ ] %s not reachable\n", site)
+			}).Warnf("[ ] %s not reachable\n", site)
 		}
-
-		respOutput(resp, site)
+		if err == nil {
+			respOutput(resp, site)
+		}
 	}
 }
 

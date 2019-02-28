@@ -170,6 +170,7 @@ services used during typical Sauce Labs usage.`,
 		if runDefault(runTCP, runAPI) && whichDC == "all" && whichCloud == "all" {
 			diagnostics.PublicSites(sitelist)
 			diagnostics.VDCServices(vdcNA)
+			diagnostics.VDCServices(vdcEU)
 			diagnostics.RDCServices(rdcEU)
 			diagnostics.RDCServices(rdcNA)
 		}

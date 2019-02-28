@@ -34,10 +34,11 @@ func VDCServices(sauceEndpoints []string) {
 		log.Debug("Sending GET req to ", u)
 		resp, err := http.Get(u.String())
 		if err != nil {
+			fmt.Printf("[ ] %s not reachable\n", u)
 			log.WithFields(log.Fields{
 				"error":    err,
 				"endpoint": u,
-			}).Warnf("[ ] %s not reachable\n", u)
+			}).Infof("[ ] %s not reachable\n", u)
 		}
 
 		if err == nil {
@@ -64,10 +65,14 @@ func VdcAPI(vdcRESTEndpoints []string) {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
+			fmt.Printf("[ ] %s not reachable\n", endpoint)
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Fatalf("[ ] %s not reachable\n", endpoint)
+			}).Infof("[ ] %s not reachable\n", endpoint)
 		}
-		respOutput(resp, endpoint)
+
+		if err == nil {
+			respOutput(resp, endpoint)
+		}
 	}
 }

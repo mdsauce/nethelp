@@ -97,10 +97,6 @@ services used during typical Sauce Labs usage.`,
 		if err != nil {
 			log.Fatal("Could not get the TCP flag. ", err)
 		}
-		runAPI, err := cmd.Flags().GetBool("api")
-		if err != nil {
-			log.Fatal("Could not get the API flag. ", err)
-		}
 		whichDC, err := cmd.Flags().GetString("dc")
 		if err != nil {
 			log.Fatal("Could not get the dc flag. ", err)
@@ -113,16 +109,18 @@ services used during typical Sauce Labs usage.`,
 		whichDC = strings.ToLower(whichDC)
 
 		// Run the diagnostics that the user passed in
-		if whichCloud != "all" && runAPI == false {
+		if whichCloud != "all" {
 			if whichCloud != "vdc" && whichCloud != "rdc" {
-				log.Fatal("The parameter is not valid.  Only all, vdc, or rdc is allowed. ", whichCloud)
+				log.Fatal("The parameter is not valid.  Only 'all', 'vdc', or 'rdc' are allowed. ", whichCloud)
 			}
 			// VDC and a specific region
 			if whichCloud == "vdc" && whichDC != "all" {
 				if whichDC == "eu" {
 					diagnostics.VDCServices(vdcEU)
+					diagnostics.VdcAPI(euVDCApi)
 				} else if whichDC == "na" {
 					diagnostics.VDCServices(vdcNA)
+					diagnostics.VdcAPI(naVDCApi)
 				}
 			}
 			// RDC and a specific region
@@ -143,36 +141,28 @@ services used during typical Sauce Labs usage.`,
 			}
 		}
 		// Specific region and all clouds
-		if whichCloud == "all" && whichDC != "all" && runAPI == false {
+		if whichCloud == "all" && whichDC != "all" {
 			if whichDC == "eu" {
 				diagnostics.VDCServices(vdcEU)
 				diagnostics.RDCServices(rdcEU)
+				diagnostics.VdcAPI(euVDCApi)	
 			} else if whichDC == "na" {
 				diagnostics.VDCServices(vdcNA)
 				diagnostics.RDCServices(rdcNA)
+				diagnostics.VdcAPI(naVDCApi)			
 			}
 		}
 		if runTCP {
 			diagnostics.TCPConns(tcplist, proxyURL)
 		}
-		if runAPI {
-			if whichDC == "na" {
-				diagnostics.VdcAPI(naVDCApi)			
-			}
-			if whichDC =="eu" {
-				diagnostics.VdcAPI(euVDCApi)	
-			}
-			if whichDC == "all"{
-				diagnostics.VdcAPI(naVDCApi)
-				diagnostics.VdcAPI(euVDCApi)
-			}
-		}
-		if runDefault(runTCP, runAPI) && whichDC == "all" && whichCloud == "all" {
-			diagnostics.PublicSites(sitelist)
+		if runDefault(runTCP) && whichDC == "all" && whichCloud == "all" {
 			diagnostics.VDCServices(vdcNA)
 			diagnostics.VDCServices(vdcEU)
+			diagnostics.PublicSites(sitelist)
 			diagnostics.RDCServices(rdcEU)
 			diagnostics.RDCServices(rdcNA)
+			diagnostics.VdcAPI(naVDCApi)
+			diagnostics.VdcAPI(euVDCApi)
 		}
 	},
 }
@@ -204,7 +194,6 @@ func init() {
 	rootCmd.Flags().BoolP("lucky", "l", false, "disable the proxy check at startup and instead test the proxy during execution.")
 	rootCmd.Flags().Bool("tcp", false, "run TCP tests. Will always run against all endpoints.")
 	rootCmd.Flags().Bool("log", false, "enables logging and creates a nethelp.log file.  Will automatically append data to the file in a non-destructive manner.")
-	rootCmd.Flags().Bool("api", false, "run API tests.  Requires that you have $SAUCE_USERNAME and $SAUCE_ACCESS_KEY environment variables.")
 	rootCmd.Flags().String("cloud", "all", "options are: VDC or RDC.  Select which services you'd like to test, Virtual Device Cloud or Real Device Cloud respectively.")
 	rootCmd.Flags().String("dc", "all", "options are: EU or NA.  Choose which data centers you want run diagnostics against, Europe or North America respectively.")
 
@@ -287,8 +276,8 @@ func checkProxy(rawProxy string) {
 	log.Info("Proxy OK.  Able to reach www.saucelabs.com.", resp)
 }
 
-func runDefault(runTCP bool, runAPI bool) bool {
-	if runTCP || runAPI {
+func runDefault(runTCP bool) bool {
+	if runTCP {
 		log.Debug("Specific test flag used.  Not running default test set.")
 		return false
 	}

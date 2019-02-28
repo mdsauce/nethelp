@@ -2,6 +2,7 @@ package diagnostics
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -19,9 +20,10 @@ func RDCServices(rdcEndpoints []string) {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
+			fmt.Printf("[ ] %s not reachable\n", endpoint)
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Warnf("[ ] %s not reachable\n", endpoint)
+			}).Infof("[ ] %s not reachable\n", endpoint)
 		}
 
 		if err == nil {

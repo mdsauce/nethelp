@@ -18,9 +18,10 @@ func PublicSites(sitelist []string) {
 		log.Debug("Sending GET req to ", site)
 		resp, err := http.Get(site)
 		if err != nil {
+			fmt.Printf("[ ] %s not reachable\n", site)
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Warnf("[ ] %s not reachable\n", site)
+			}).Infof("[ ] %s not reachable\n", site)
 		}
 		if err == nil {
 			respOutput(resp, site)

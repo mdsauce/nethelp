@@ -68,6 +68,30 @@ $ nethelp  --cloud vdc --dc na
 [✓] http://ondemand.saucelabs.com:80 is reachable 200 OK
 ```
 
+### Idle server (for development only)
+
+**This server is not needed client side, it is only necessary for the Sauce Labs support team**
+
+The repository provides a custom http server simulating long idle connections. It can be found in `server/idle-server.go`.
+Usage:
+
+```
+$ cd server
+$ go build idle-server.go
+$ ./idle-server -p 8080 -v
+INFO[0000] Starting server, listening on port 8080
+```
+
+You can request specific timeouts in seconds the following way:
+
+```
+$ curl http://localhost:8080/10 # 10 seconds timeout
+$ curl http://localhost:8080/900 # 15 minutes timeout
+```
+
+The server will answer after the requested number of seconds, allowing to simulate long running idle connections.
+This is especially useful when trying to find out if long allocation time for RDC is a problem from a specific network.
+
 ### Build
 Built using [Cobra](https://github.com/spf13/cobra) and go v1.11.  Cobra is an opinionated CLI generator. Cobra is built  on top of [pflag](https://github.com/spf13/pflag) which expands on the std library flag package in Go.
 

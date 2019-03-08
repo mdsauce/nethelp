@@ -3,7 +3,7 @@
 # nethelp
 Nethelp will assist with finding out what is blocking outbound connections from the machine by sending HTTP and TCP connections to servies used by Sauce Labs.
 
-### Downloading and setting up
+### Downloading and setting u
 1. Download the binary for your operating system from [the releases](https://github.com/mdsauce/nethelp/releases).  
 2. On Mac and Linux make this file executable by running `$ chmod 755`. You may get a `permission denied` type error if you try and run without the `chmod` step.   For example on a Linux machine:
 ```
@@ -12,6 +12,7 @@ $ chmod 755 nethelp
 $ ./nethelp --help
 ```
 3. Run `./nethelp` with whatever flags you need.
+[![asciicast](https://asciinema.org/a/232600.svg)](https://asciinema.org/a/232600)
 
 If you are on a Linux or Mac OS and you have root access you can add the `nethelp` binary to your command line by moving it to `/usr/local/bin`.  
 

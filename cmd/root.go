@@ -33,7 +33,7 @@ import (
 
 var cfgFile string
 var userProxy string
-var sitelist, tcplist, vdcNA, vdcEU, rdcNA, rdcEU []string
+var publicSites, tcplist, vdcNA, vdcEU, rdcNA, rdcEU []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -85,7 +85,7 @@ services used during typical Sauce Labs usage.`,
 
 		// Default APIs and service endpoints
 		tcplist = []string{"ondemand.saucelabs.com:443", "ondemand.saucelabs.com:80", "ondemand.saucelabs.com:8080", "ondemand.eu-central-1.saucelabs.com:80", "ondemand.eu-central-1.saucelabs.com:443", "us1.appium.testobject.com:443", "eu1.appium.testobject.com:443", "us1.appium.testobject.com:80", "eu1.appium.testobject.com:80"}
-		sitelist = []string{"https://status.saucelabs.com", "https://www.duckduckgo.com"}
+		publicSites = []string{"https://status.us-west-1.saucelabs.com","http://status.eu-central-1.saucelabs.com/", "https://www.duckduckgo.com"}
 		vdcNA = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80"}
 		vdcEU = []string{"http://ondemand.eu-central-1.saucelabs.com:80", "https://ondemand.eu-central-1.saucelabs.com:443"}
 		rdcNA = []string{"https://us1.appium.testobject.com/wd/hub/session"}
@@ -158,7 +158,7 @@ services used during typical Sauce Labs usage.`,
 		if runDefault(runTCP) && whichDC == "all" && whichCloud == "all" {
 			diagnostics.VDCServices(vdcNA)
 			diagnostics.VDCServices(vdcEU)
-			diagnostics.PublicSites(sitelist)
+			diagnostics.PublicSites(publicSites)
 			diagnostics.RDCServices(rdcEU)
 			diagnostics.RDCServices(rdcNA)
 			diagnostics.VdcAPI(naVDCApi)

@@ -8,3 +8,4 @@ jobs:
       - checkout
       - run: pwd && ls 
       - run: go install
+      - run: nethelp

@@ -21,7 +21,6 @@ You can also export the file `export PATH=$PATH:</path/to/file>` by adding that 
 ### Usage
 ```
 $ nethelp --help
-
  ___  __ _ _   _  ___ ___   / / __   ___| |_| |__   ___| |_ __  
 / __|/ _  | | | |/ __/ _ \ / / '_ \ / _ \ __| '_ \ / _ \ | '_ \ 
 \__ \ (_| | |_| | (_|  __// /| | | |  __/ |_| | | |  __/ | |_) |
@@ -35,7 +34,6 @@ Usage:
   nethelp [flags]
 
 Flags:
-      --api            run API tests.  Requires that you have $SAUCE_USERNAME and $SAUCE_ACCESS_KEY environment variables.
       --cloud string   options are: VDC or RDC.  Select which services you'd like to test, Virtual Device Cloud or Real Device Cloud respectively. (default "all")
       --dc string      options are: EU or NA.  Choose which data centers you want run diagnostics against, Europe or North America respectively. (default "all")
   -h, --help           help for nethelp
@@ -44,6 +42,7 @@ Flags:
   -p, --proxy string   upstream proxy for nethelp to use. Enter like -p protocol://username:password@host:port
       --tcp            run TCP tests. Will always run against all endpoints.
   -v, --verbose        print all logging levels
+
 ```
 
 * Run HTTP and API tests with a proxy upstream from your machine

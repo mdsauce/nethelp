@@ -48,7 +48,7 @@ Flags:
 
 * Run HTTP and API tests with a proxy upstream from your machine
 ```
-$ nethelp --api --http -p myUsername:myPassword@upstream.proxy.inc.com:8080
+$ nethelp -p myUsername:myPassword@upstream.proxy.inc.com:8080
 
 ```
 

@@ -3,7 +3,7 @@
 # nethelp
 Nethelp will assist with finding out what is blocking outbound connections from the machine by sending HTTP and TCP connections to servies used by Sauce Labs.
 
-### Downloading and setting u
+## Downloading and setting up
 1. Download the binary for your operating system from [the releases](https://github.com/mdsauce/nethelp/releases).  
 2. On Mac and Linux make this file executable by running `$ chmod 755`. You may get a `permission denied` type error if you try and run without the `chmod` step.   For example on a Linux machine:
 ```
@@ -18,7 +18,7 @@ If you are on a Linux or Mac OS and you have root access you can add the `nethel
 
 You can also export the file `export PATH=$PATH:</path/to/file>` by adding that line to your `~/.bashrc` or `~/.bash_profile`.  More information here: https://unix.stackexchange.com/questions/3809/how-can-i-make-a-program-executable-from-everywhere.
 
-### Usage
+## Usage
 ```
 $ nethelp --help
  ___  __ _ _   _  ___ ___   / / __   ___| |_| |__   ___| |_ __  
@@ -68,7 +68,7 @@ $ nethelp  --cloud vdc --dc na
 [✓] http://ondemand.saucelabs.com:80 is reachable 200 OK
 ```
 
-### Idle server (for development only)
+## Idle server (for development only)
 
 **This server is not needed client side, it is only necessary for the Sauce Labs support team**
 
@@ -92,7 +92,7 @@ $ curl http://localhost:8080/900 # 15 minutes timeout
 The server will answer after the requested number of seconds, allowing to simulate long running idle connections.
 This is especially useful when trying to find out if long allocation time for RDC is a problem from a specific network.
 
-### Build
+## Build
 Built using [Cobra](https://github.com/spf13/cobra) and go v1.11.  Cobra is an opinionated CLI generator. Cobra is built  on top of [pflag](https://github.com/spf13/pflag) which expands on the std library flag package in Go.
 
 1. Clone the repo.
@@ -103,6 +103,6 @@ $ git clone git@github.com:mdsauce/nethelp.git
 
 If you're new to Go consider taking the tour https://tour.golang.org/list.
 
-### Next Features
+## Next Features
 * create a test session with a specific name then quit it.  This will prove a connection can be made to the services and a test can start with user credentials.
 * recover from failures automatically, record the failure, then continue the rest of the diagnostics.

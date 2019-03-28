@@ -85,7 +85,6 @@ services used during typical Sauce Labs usage.`,
 		checkForEnvProxies()
 
 		// Default APIs and service endpoints
-		publicSites = []string{"https://status.us-west-1.saucelabs.com", "http://status.eu-central-1.saucelabs.com/", "https://www.duckduckgo.com"}
 		vdcNA = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80"}
 		vdcEU = []string{"http://ondemand.eu-central-1.saucelabs.com:80", "https://ondemand.eu-central-1.saucelabs.com:443"}
 		rdcNA = []string{"https://us1.appium.testobject.com/wd/hub/session"}
@@ -113,42 +112,27 @@ services used during typical Sauce Labs usage.`,
 			if whichCloud != "vdc" && whichCloud != "rdc" {
 				log.Fatal("The parameter is not valid.  Only 'all', 'vdc', or 'rdc' are allowed. ", whichCloud)
 			}
-			// VDC and a specific region
-			if whichCloud == "vdc" && whichDC != "all" {
+			// VDC
+			if whichCloud == "vdc" {
+				vdcTest := endpoints.NewVDCTest(whichDC)
+				diagnostics.VDCServices(vdcTest.Endpoints)
 				if whichDC == "eu" {
-					diagnostics.VDCServices(vdcEU)
 					diagnostics.VdcAPI(euVDCApi)
 				} else if whichDC == "na" {
-					diagnostics.VDCServices(vdcNA)
 					diagnostics.VdcAPI(naVDCApi)
 				}
 			}
-			// RDC and a specific region
-			if whichCloud == "rdc" && whichDC != "all" {
-				if whichDC == "eu" {
-					diagnostics.RDCServices(rdcEU)
-				} else if whichDC == "na" {
-					diagnostics.RDCServices(rdcNA)
-				}
-			}
-			// VDC and all regions OR RDC and all regions
-			if whichCloud == "vdc" && whichDC == "all" {
-				diagnostics.VDCServices(vdcNA)
-				diagnostics.VDCServices(vdcEU)
-			} else if whichCloud == "rdc" && whichDC == "all" {
-				diagnostics.RDCServices(rdcEU)
-				diagnostics.RDCServices(rdcNA)
+			// RDC
+			if whichCloud == "rdc" {
+				rdcTest := endpoints.NewRDCTest(whichDC)
+				diagnostics.RDCServices(rdcTest.Endpoints)
 			}
 		}
 		// Specific region and all clouds
-		if whichCloud == "all" && whichDC != "all" {
+		if whichCloud == "all" {
 			if whichDC == "eu" {
-				diagnostics.VDCServices(vdcEU)
-				diagnostics.RDCServices(rdcEU)
 				diagnostics.VdcAPI(euVDCApi)
 			} else if whichDC == "na" {
-				diagnostics.VDCServices(vdcNA)
-				diagnostics.RDCServices(rdcNA)
 				diagnostics.VdcAPI(naVDCApi)
 			}
 		}
@@ -156,11 +140,12 @@ services used during typical Sauce Labs usage.`,
 			defTCP := endpoints.NewTCPTest()
 			diagnostics.TCPConns(defTCP.Sitelist, proxyURL)
 		} else if whichDC == "all" && whichCloud == "all" {
-			diagnostics.VDCServices(vdcNA)
-			diagnostics.VDCServices(vdcEU)
-			diagnostics.PublicSites(publicSites)
-			diagnostics.RDCServices(rdcEU)
-			diagnostics.RDCServices(rdcNA)
+			defPublic := endpoints.NewPublicTest()
+			rdcTest := endpoints.NewRDCTest(whichDC)
+			vdcTest := endpoints.NewVDCTest(whichDC)
+			diagnostics.VDCServices(vdcTest.Endpoints)
+			diagnostics.RDCServices(rdcTest.Endpoints)
+			diagnostics.PublicSites(defPublic.Sitelist)
 			diagnostics.VdcAPI(naVDCApi)
 			diagnostics.VdcAPI(euVDCApi)
 		}

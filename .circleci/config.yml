@@ -9,4 +9,8 @@ jobs:
       - run: pwd && ls 
       - run: go install
       - run: nethelp -v
+      - run: nethelp --cloud rdc
+      - run: nethelp --cloud vdc
+      - run: nethelp --dc na
+      - run: nethelp --dc eu
       - run: nethelp

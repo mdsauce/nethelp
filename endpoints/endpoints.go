@@ -14,9 +14,9 @@ type Check struct {
 	Sitelist []string
 }
 
-// Service is a combination of the
+// SauceService is a combination of the
 // Cloud, Geographic location of the DC, and endpoint collection
-type Service struct {
+type SauceService struct {
 	Datacenter string
 	Cloud      string
 	Endpoints  []string
@@ -44,8 +44,8 @@ func NewPublicTest() Check {
 
 // NewRDCTest takes a Data Center and assembles a collection of endpoints
 // and geographic + service definitions
-func NewRDCTest(dc string) Service {
-	rdcTest := Service{Datacenter: dc, Cloud: "rdc"}
+func NewRDCTest(dc string) SauceService {
+	rdcTest := SauceService{Datacenter: dc, Cloud: "rdc"}
 	if dc == "eu" {
 		rdcTest.Endpoints = []string{"https://eu1.appium.testobject.com/wd/hub/session"}
 	}
@@ -58,9 +58,9 @@ func NewRDCTest(dc string) Service {
 	return rdcTest
 }
 
-// NewVDCTest constructs a Service object that contains the specificed Datacenter and endpoints
-func NewVDCTest(dc string) Service {
-	vdcTest := Service{Datacenter: dc, Cloud: "vdc"}
+// NewVDCTest constructs a SauceService object that contains the specificed Datacenter and endpoints
+func NewVDCTest(dc string) SauceService {
+	vdcTest := SauceService{Datacenter: dc, Cloud: "vdc"}
 	if dc == "eu" {
 		vdcTest.Endpoints = []string{"http://ondemand.eu-central-1.saucelabs.com:80", "https://ondemand.eu-central-1.saucelabs.com:443"}
 	}
@@ -75,26 +75,29 @@ func NewVDCTest(dc string) Service {
 
 // AssembleVDCEndpoints interpolates user variables like
 // SAUCE_USERNAMe and SAUCE_ACCESS_KEY to create a valid URI.
-func AssembleVDCEndpoints(dc string) (*Service, error) {
+func AssembleVDCEndpoints(dc string) (*SauceService, error) {
 	if os.Getenv("SAUCE_USERNAME") == "" {
 		log.Info("SAUCE_USERNAME environment variables not found.  Not running VDC REST endpoint tests.")
 		return nil, errors.New("SAUCE_USERNAME environment variables not found, not running VDC REST endpoint tests")
 	}
-	vdcTest := Service{Datacenter: dc, Cloud: "vdc"}
+	vdcTest := SauceService{Datacenter: dc, Cloud: "vdc"}
 
 	naEndpoint := fmt.Sprintf("https://saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
 	euEndpoint := fmt.Sprintf("https://eu-central-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
 
 	switch dc {
 	case "all":
-		vdcTest.Endpoints = append(vdcTest.Endpoints, naEndpoint, euEndpoint)
-		return &vdcTest, nil
+		e := make([]string, 2)
+		e[0] = naEndpoint
+		e[1] = euEndpoint
+		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}, nil
 	case "na":
 		vdcTest.Endpoints = append(vdcTest.Endpoints, naEndpoint)
 		return &vdcTest, nil
 	case "eu":
 		vdcTest.Endpoints = append(vdcTest.Endpoints, euEndpoint)
 		return &vdcTest, nil
+	default:
+		return nil, errors.New("Only 'all', 'vdc', or 'rdc' are allowed")
 	}
-	return nil, errors.New("Only 'all', 'vdc', or 'rdc' are allowed")
 }

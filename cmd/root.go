@@ -119,7 +119,7 @@ during a Sauce Labs session (RDC or VDC) .`,
 			}
 		}
 		// Specific region and all clouds
-		if whichCloud == "all" && whichCloud != "all" {
+		if whichCloud == "all" && whichDC != "all" {
 			vdcTest := endpoints.NewVDCTest(whichDC)
 			diagnostics.VDCServices(vdcTest.Endpoints)
 			rdcTest := endpoints.NewRDCTest(whichDC)
@@ -134,17 +134,18 @@ during a Sauce Labs session (RDC or VDC) .`,
 			defTCP := endpoints.NewTCPTest()
 			diagnostics.TCPConns(defTCP.Sitelist, proxyURL)
 		} else if whichDC == "all" && whichCloud == "all" {
-			vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
-			if err != nil {
-				log.Info(err)
-			}
 			defPublic := endpoints.NewPublicTest()
 			rdcTest := endpoints.NewRDCTest(whichDC)
 			vdcTest := endpoints.NewVDCTest(whichDC)
 			diagnostics.VDCServices(vdcTest.Endpoints)
 			diagnostics.RDCServices(rdcTest.Endpoints)
 			diagnostics.PublicSites(defPublic.Sitelist)
-			diagnostics.VdcAPI(vdcAPITest.Endpoints)
+			vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
+			if err != nil && vdcAPITest != nil {
+				log.Info(err)
+			} else {
+				diagnostics.VdcAPI(vdcAPITest.Endpoints)
+			}
 		}
 	},
 }

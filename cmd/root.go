@@ -34,7 +34,6 @@ import (
 
 var cfgFile string
 var userProxy string
-var publicSites, tcplist, vdcNA, vdcEU, rdcNA, rdcEU []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -47,8 +46,8 @@ var rootCmd = &cobra.Command{
 |___/\__,_|\__,_|\___\___/_/ |_| |_|\___|\__|_| |_|\___|_| .__/ 
                                                          |_|  
 Nethelp will help find out what is blocking outbound 
-connections by sending requests to 
-services used during typical Sauce Labs usage.`,
+connections by sending requests to services used 
+during a Sauce Labs session (RDC or VDC) .`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
@@ -84,13 +83,6 @@ services used during typical Sauce Labs usage.`,
 		log.Info("Proxy URL: ", proxyURL)
 		checkForEnvProxies()
 
-		// Default APIs and service endpoints
-		vdcNA = []string{"https://ondemand.saucelabs.com:443", "http://ondemand.saucelabs.com:80"}
-		vdcEU = []string{"http://ondemand.eu-central-1.saucelabs.com:80", "https://ondemand.eu-central-1.saucelabs.com:443"}
-		rdcNA = []string{"https://us1.appium.testobject.com/wd/hub/session"}
-		rdcEU = []string{"https://eu1.appium.testobject.com/wd/hub/session"}
-		naVDCApi, euVDCApi := assembleVDCEndpoints()
-
 		// Collect the flags to decide which diagnostics to run
 		runTCP, err := cmd.Flags().GetBool("tcp")
 		if err != nil {
@@ -109,18 +101,16 @@ services used during typical Sauce Labs usage.`,
 
 		// Run the diagnostics that the user passed in
 		if whichCloud != "all" {
-			if whichCloud != "vdc" && whichCloud != "rdc" {
-				log.Fatal("The parameter is not valid.  Only 'all', 'vdc', or 'rdc' are allowed. ", whichCloud)
-			}
+			validateCloud(whichCloud)
 			// VDC
 			if whichCloud == "vdc" {
 				vdcTest := endpoints.NewVDCTest(whichDC)
 				diagnostics.VDCServices(vdcTest.Endpoints)
-				if whichDC == "eu" {
-					diagnostics.VdcAPI(euVDCApi)
-				} else if whichDC == "na" {
-					diagnostics.VdcAPI(naVDCApi)
+				vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
+				if err != nil {
+					log.Info(err)
 				}
+				diagnostics.VdcAPI(vdcAPITest.Endpoints)
 			}
 			// RDC
 			if whichCloud == "rdc" {
@@ -130,24 +120,31 @@ services used during typical Sauce Labs usage.`,
 		}
 		// Specific region and all clouds
 		if whichCloud == "all" {
-			if whichDC == "eu" {
-				diagnostics.VdcAPI(euVDCApi)
-			} else if whichDC == "na" {
-				diagnostics.VdcAPI(naVDCApi)
+			vdcTest := endpoints.NewVDCTest(whichDC)
+			diagnostics.VDCServices(vdcTest.Endpoints)
+			rdcTest := endpoints.NewRDCTest(whichDC)
+			diagnostics.RDCServices(rdcTest.Endpoints)
+			vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
+			if err != nil {
+				log.Info(err)
 			}
+			diagnostics.VdcAPI(vdcAPITest.Endpoints)
 		}
 		if runTCP {
 			defTCP := endpoints.NewTCPTest()
 			diagnostics.TCPConns(defTCP.Sitelist, proxyURL)
 		} else if whichDC == "all" && whichCloud == "all" {
+			vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
+			if err != nil {
+				log.Info(err)
+			}
 			defPublic := endpoints.NewPublicTest()
 			rdcTest := endpoints.NewRDCTest(whichDC)
 			vdcTest := endpoints.NewVDCTest(whichDC)
 			diagnostics.VDCServices(vdcTest.Endpoints)
 			diagnostics.RDCServices(rdcTest.Endpoints)
 			diagnostics.PublicSites(defPublic.Sitelist)
-			diagnostics.VdcAPI(naVDCApi)
-			diagnostics.VdcAPI(euVDCApi)
+			diagnostics.VdcAPI(vdcAPITest.Endpoints)
 		}
 	},
 }
@@ -261,23 +258,6 @@ func checkProxy(rawProxy string) {
 	log.Info("Proxy OK.  Able to reach www.saucelabs.com.", resp)
 }
 
-// assembleVDCEndpoints interpolates user variables like
-// username and their sauce api key to create a valid URI
-// Returns NA api list then EU api list
-func assembleVDCEndpoints() ([]string, []string) {
-	if os.Getenv("SAUCE_USERNAME") == "" {
-		log.Info("No Environment Variables found.  Not running VDC REST endpoint tests.")
-		return nil, nil
-	}
-	naVDCREST := []string{""}
-	euVDCREST := []string{""}
-	endpoint := fmt.Sprintf("https://saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
-	naVDCREST[0] = endpoint
-	endpoint = fmt.Sprintf("https://eu-central-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
-	euVDCREST[0] = endpoint
-	return naVDCREST, euVDCREST
-}
-
 func checkForEnvProxies() {
 	proxyList := []string{"HTTP_PROXY", "HTTPS_PROXY", "PROXY", "ALL_PROXY"}
 	for _, proxy := range proxyList {
@@ -287,5 +267,11 @@ func checkForEnvProxies() {
 				"potential proxy": os.Getenv(proxy),
 			}).Warn("An environment variable for a Proxy may exist.  This will NOT be automatically used.  You must use the --proxy flag.")
 		}
+	}
+}
+
+func validateCloud(whichCloud string) {
+	if whichCloud != "vdc" && whichCloud != "rdc" {
+		log.Fatal("The parameter is not valid.  Only 'all', 'vdc', or 'rdc' are allowed", whichCloud)
 	}
 }

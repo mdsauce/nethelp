@@ -9,3 +9,4 @@ jobs:
       - run: pwd && ls 
       - run: go install
       - run: nethelp
+      - run: nethelp -v

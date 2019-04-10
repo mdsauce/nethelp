@@ -101,6 +101,7 @@ during a Sauce Labs session (RDC or VDC) .`,
 		whichDC = strings.ToLower(whichDC)
 		vdcTest := endpoints.NewVDCTest(whichDC)
 		rdcTest := endpoints.NewRDCTest(whichDC)
+		defPublic := endpoints.NewPublicTest()
 		vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
 		if err != nil {
 			log.Info(err)
@@ -108,7 +109,6 @@ during a Sauce Labs session (RDC or VDC) .`,
 
 		// Run the diagnostics that the user passed in
 		if whichCloud != "all" {
-
 			validateCloud(whichCloud)
 			// VDC
 			if whichCloud == "vdc" {
@@ -119,23 +119,14 @@ during a Sauce Labs session (RDC or VDC) .`,
 			}
 			// RDC
 			if whichCloud == "rdc" {
-				rdcTest := endpoints.NewRDCTest(whichDC)
 				diagnostics.RDCServices(rdcTest.Endpoints)
 			}
 		}
-		// Specific all clouds and a specific geo-region
-		if whichCloud == "all" && whichDC != "all" {
-			diagnostics.VDCServices(vdcTest.Endpoints)
-			diagnostics.RDCServices(rdcTest.Endpoints)
-			if vdcAPITest != nil {
-				diagnostics.VdcAPI(vdcAPITest.Endpoints)
-			}
-		}
+
 		if runTCP {
 			defTCP := endpoints.NewTCPTest()
 			diagnostics.TCPConns(defTCP.Sitelist, proxyURL)
-		} else if whichDC == "all" && whichCloud == "all" {
-			defPublic := endpoints.NewPublicTest()
+		} else if whichCloud == "all" {
 			diagnostics.VDCServices(vdcTest.Endpoints)
 			diagnostics.RDCServices(rdcTest.Endpoints)
 			diagnostics.PublicSites(defPublic.Sitelist)

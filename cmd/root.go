@@ -96,20 +96,24 @@ during a Sauce Labs session (RDC or VDC) .`,
 		if err != nil {
 			log.Fatal("Could not get the cloud flag. ", err)
 		}
+		// refine data from cli and assemble endpoints/services to be tested
 		whichCloud = strings.ToLower(whichCloud)
 		whichDC = strings.ToLower(whichDC)
+		vdcTest := endpoints.NewVDCTest(whichDC)
+		rdcTest := endpoints.NewRDCTest(whichDC)
+		vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
+		if err != nil {
+			log.Info(err)
+		}
 
 		// Run the diagnostics that the user passed in
 		if whichCloud != "all" {
+
 			validateCloud(whichCloud)
 			// VDC
 			if whichCloud == "vdc" {
-				vdcTest := endpoints.NewVDCTest(whichDC)
 				diagnostics.VDCServices(vdcTest.Endpoints)
-				vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
-				if err != nil {
-					log.Info(err)
-				} else {
+				if vdcAPITest != nil {
 					diagnostics.VdcAPI(vdcAPITest.Endpoints)
 				}
 			}
@@ -119,16 +123,11 @@ during a Sauce Labs session (RDC or VDC) .`,
 				diagnostics.RDCServices(rdcTest.Endpoints)
 			}
 		}
-		// Specific region and all clouds
+		// Specific all clouds and a specific geo-region
 		if whichCloud == "all" && whichDC != "all" {
-			vdcTest := endpoints.NewVDCTest(whichDC)
 			diagnostics.VDCServices(vdcTest.Endpoints)
-			rdcTest := endpoints.NewRDCTest(whichDC)
 			diagnostics.RDCServices(rdcTest.Endpoints)
-			vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
-			if err != nil {
-				log.Info(err)
-			} else {
+			if vdcAPITest != nil {
 				diagnostics.VdcAPI(vdcAPITest.Endpoints)
 			}
 		}
@@ -137,15 +136,10 @@ during a Sauce Labs session (RDC or VDC) .`,
 			diagnostics.TCPConns(defTCP.Sitelist, proxyURL)
 		} else if whichDC == "all" && whichCloud == "all" {
 			defPublic := endpoints.NewPublicTest()
-			rdcTest := endpoints.NewRDCTest(whichDC)
-			vdcTest := endpoints.NewVDCTest(whichDC)
 			diagnostics.VDCServices(vdcTest.Endpoints)
 			diagnostics.RDCServices(rdcTest.Endpoints)
 			diagnostics.PublicSites(defPublic.Sitelist)
-			vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
-			if err != nil {
-				log.Info(err)
-			} else {
+			if vdcAPITest != nil {
 				diagnostics.VdcAPI(vdcAPITest.Endpoints)
 			}
 		}

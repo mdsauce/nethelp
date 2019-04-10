@@ -80,8 +80,6 @@ func AssembleVDCEndpoints(dc string) (*SauceService, error) {
 		log.Info("SAUCE_USERNAME environment variables not found.  Not running VDC REST endpoint tests.")
 		return nil, errors.New("SAUCE_USERNAME environment variables not found, not running VDC REST endpoint tests")
 	}
-	vdcTest := SauceService{Datacenter: dc, Cloud: "vdc"}
-
 	naEndpoint := fmt.Sprintf("https://saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
 	euEndpoint := fmt.Sprintf("https://eu-central-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
 
@@ -92,11 +90,13 @@ func AssembleVDCEndpoints(dc string) (*SauceService, error) {
 		e[1] = euEndpoint
 		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}, nil
 	case "na":
-		vdcTest.Endpoints = append(vdcTest.Endpoints, naEndpoint)
-		return &vdcTest, nil
+		e := make([]string, 1)
+		e[0] = naEndpoint
+		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}, nil
 	case "eu":
-		vdcTest.Endpoints = append(vdcTest.Endpoints, euEndpoint)
-		return &vdcTest, nil
+		e := make([]string, 2)
+		e[0] = euEndpoint
+		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}, nil
 	default:
 		return nil, errors.New("Only 'all', 'vdc', or 'rdc' are allowed")
 	}

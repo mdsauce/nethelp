@@ -109,8 +109,9 @@ during a Sauce Labs session (RDC or VDC) .`,
 				vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
 				if err != nil {
 					log.Info(err)
+				} else {
+					diagnostics.VdcAPI(vdcAPITest.Endpoints)
 				}
-				diagnostics.VdcAPI(vdcAPITest.Endpoints)
 			}
 			// RDC
 			if whichCloud == "rdc" {
@@ -127,8 +128,9 @@ during a Sauce Labs session (RDC or VDC) .`,
 			vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
 			if err != nil {
 				log.Info(err)
+			} else {
+				diagnostics.VdcAPI(vdcAPITest.Endpoints)
 			}
-			diagnostics.VdcAPI(vdcAPITest.Endpoints)
 		}
 		if runTCP {
 			defTCP := endpoints.NewTCPTest()
@@ -141,7 +143,7 @@ during a Sauce Labs session (RDC or VDC) .`,
 			diagnostics.RDCServices(rdcTest.Endpoints)
 			diagnostics.PublicSites(defPublic.Sitelist)
 			vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
-			if err != nil && vdcAPITest != nil {
+			if err != nil {
 				log.Info(err)
 			} else {
 				diagnostics.VdcAPI(vdcAPITest.Endpoints)

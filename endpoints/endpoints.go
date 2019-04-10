@@ -94,7 +94,7 @@ func AssembleVDCEndpoints(dc string) (*SauceService, error) {
 		e[0] = naEndpoint
 		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}, nil
 	case "eu":
-		e := make([]string, 2)
+		e := make([]string, 1)
 		e[0] = euEndpoint
 		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}, nil
 	default:

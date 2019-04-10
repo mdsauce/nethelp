@@ -96,7 +96,8 @@ during a Sauce Labs session (RDC or VDC) .`,
 		if err != nil {
 			log.Fatal("Could not get the cloud flag. ", err)
 		}
-		// refine data from cli and assemble endpoints/services to be tested
+		// refine data from cli and assemble
+		// endpoints/services to be tested
 		whichCloud = strings.ToLower(whichCloud)
 		whichDC = strings.ToLower(whichDC)
 		vdcTest := endpoints.NewVDCTest(whichDC)
@@ -129,7 +130,9 @@ during a Sauce Labs session (RDC or VDC) .`,
 		} else if whichCloud == "all" {
 			diagnostics.VDCServices(vdcTest.Endpoints)
 			diagnostics.RDCServices(rdcTest.Endpoints)
-			diagnostics.PublicSites(defPublic.Sitelist)
+			if whichDC == "all" {
+				diagnostics.PublicSites(defPublic.Sitelist)
+			}
 			if vdcAPITest != nil {
 				diagnostics.VdcAPI(vdcAPITest.Endpoints)
 			}

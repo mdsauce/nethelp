@@ -119,7 +119,7 @@ during a Sauce Labs session (RDC or VDC) .`,
 			}
 		}
 		// Specific region and all clouds
-		if whichCloud == "all" {
+		if whichCloud == "all" && whichCloud != "all" {
 			vdcTest := endpoints.NewVDCTest(whichDC)
 			diagnostics.VDCServices(vdcTest.Endpoints)
 			rdcTest := endpoints.NewRDCTest(whichDC)

@@ -107,8 +107,9 @@ during a Sauce Labs session (RDC or VDC) .`,
 		if err != nil {
 			log.Info(err)
 		}
-		validateDC(whichDC)
-
+		if whichDC != "all" {
+			validateDC(whichDC)
+		}
 		// Run the diagnostics that the user passed in
 		if whichCloud != "all" {
 			validateCloud(whichCloud)

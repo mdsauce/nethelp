@@ -3,31 +3,12 @@ package diagnostics
 import (
 	"fmt"
 	"net"
-	"net/http"
 	"net/url"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/proxy"
 )
-
-// PublicSites attempts to prove that the machine has internet
-// connectivity and is not being blocked by a private network.
-func PublicSites(sitelist []string) {
-	for _, site := range sitelist {
-		log.Debug("Sending GET req to ", site)
-		resp, err := http.Get(site)
-		if err != nil {
-			fmt.Printf("[ ] %s not reachable\n", site)
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Infof("[ ] %s not reachable\n", site)
-		}
-		if err == nil {
-			respOutput(resp, site)
-		}
-	}
-}
 
 // TCPConns attempts to open various TCP connections to the provided sites
 // This proves that with or without a proxy the TCP connections can be created.
@@ -66,27 +47,5 @@ func TCPConns(sitelist []string, proxyURL *url.URL) {
 			}).Infof("[\u2713] %s reachable via TCP (IPv4).\n", site)
 			conn.Close()
 		}
-	}
-}
-
-func respOutput(resp *http.Response, endpoint string) {
-	if resp.StatusCode == 200 {
-		fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
-		log.WithFields(log.Fields{
-			"status": resp.Status,
-			"resp":   resp,
-		}).Infof("[\u2713] %s reachable.\n", endpoint)
-	} else if resp.StatusCode == 401 {
-		fmt.Printf("[\u2713] %s is reachable but returned %s\n", endpoint, resp.Status)
-		log.WithFields(log.Fields{
-			"status": resp.Status,
-			"resp":   resp,
-		}).Infof("[\u2713] %s reachable but unauthenticated.\n", endpoint)
-	} else {
-		fmt.Printf("[ ] %s returned %s\n", endpoint, resp.Status)
-		log.WithFields(log.Fields{
-			"status": resp.Status,
-			"resp":   resp,
-		}).Infof("[ ] %s returned %s\n", endpoint, resp.Status)
 	}
 }

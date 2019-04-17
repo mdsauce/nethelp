@@ -107,6 +107,7 @@ during a Sauce Labs session (RDC or VDC) .`,
 		if err != nil {
 			log.Info(err)
 		}
+		validateDC(whichDC)
 
 		// Run the diagnostics that the user passed in
 		if whichCloud != "all" {
@@ -263,6 +264,12 @@ func checkForEnvProxies() {
 
 func validateCloud(whichCloud string) {
 	if whichCloud != "vdc" && whichCloud != "rdc" {
-		log.Fatal("The parameter is not valid.  Only 'all', 'vdc', or 'rdc' are allowed", whichCloud)
+		log.Fatal("The parameter is not valid.  Only 'all', 'vdc', or 'rdc' are allowed")
+	}
+}
+
+func validateDC(whichDC string) {
+	if whichDC != "na" && whichDC != "eu" {
+		log.Fatal("The parameter is not valid.  Only 'all', 'na', or 'eu' are allowed")
 	}
 }

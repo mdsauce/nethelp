@@ -11,7 +11,7 @@ import (
 
 func respOutput(resp *http.Response, endpoint string) {
 	if resp.StatusCode == 200 {
-		fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
+		fmt.Printf("[OK] %s is reachable %s\n", endpoint, resp.Status)
 		log.WithFields(log.Fields{
 			"status": resp.Status,
 			"resp":   resp,

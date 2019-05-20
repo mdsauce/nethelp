@@ -1,50 +1,41 @@
-package main
+package server
 
 import (
-    "flag"
-    "fmt"
-    "net/http"
-    "time"
-    "strconv"
-
-	log "github.com/sirupsen/logrus"
+	"fmt"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 func handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		i, err := strconv.ParseInt(r.URL.Path[1:], 10, 32)
 		if err != nil {
-			log.Error(err)
+			fmt.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		log.Debug("Received request for a timeout of ", i, " seconds")
+		fmt.Printf("received request with a idle of %d seconds\n", i)
 
 		time.Sleep(time.Duration(i) * time.Second)
-		fmt.Fprintln(w, "Waited for", i, "seconds")
-		log.Debug("request answered after ", i, " seconds")
+		fmt.Printf("Waited for %d seconds\n", i)
+		fmt.Printf("request answered after %d seconds\n", i)
 	})
 }
 
-func main() {
-    port := flag.String("p", "8080", "port to listen to")
-    verbose := flag.Bool("v", false, "verbose mode")
-    flag.Parse()
-
-	log.SetLevel(log.WarnLevel)
+// IdleServer starts a webserver that will wait 15+ minutes
+// before responding to HTTP requests
+func IdleServer() {
+	port := "8080"
 
 	s := &http.Server{
-		Addr:           fmt.Sprint(":", *port),
-		Handler:        handler(),
-		WriteTimeout:   20 * time.Minute,
-		IdleTimeout: 20 * time.Minute,
+		Addr:         fmt.Sprint(":", port),
+		Handler:      handler(),
+		WriteTimeout: 20 * time.Minute,
+		IdleTimeout:  20 * time.Minute,
 	}
 
-	if *verbose {
-		log.SetLevel(log.TraceLevel)
-	}
-
-	log.Info("Starting server, listening on port ", *port)
-	log.Fatal(s.ListenAndServe())
+	fmt.Println("Starting server, listening on port ", port)
+	fmt.Println(s.ListenAndServe())
 }

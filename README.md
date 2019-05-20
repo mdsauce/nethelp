@@ -69,6 +69,9 @@ $ nethelp  --cloud vdc --dc na
 ```
 
 ## Idle server (for development only)
+1. Build or obtain the binary
+2. Run `nethelp idle`
+3. Execute your curl commands against the web server
 
 **This server is not needed client side, it is only necessary for the Sauce Labs support team**
 
@@ -99,7 +102,8 @@ Built using [Cobra](https://github.com/spf13/cobra) and go v1.11.  Cobra is an o
 ```
 $ git clone git@github.com:mdsauce/nethelp.git
 ```
-2. Go the nethelp dir.  Use `$ go build` to build a local version in the current dir or `$ go install` to install one in the `~/go/bin` folder and add the `nethelp` binary to your path.
+2. Go the `nethelp` dir.  
+3. Use `$ go build` to build a binary in the current dir or `$ go install` to install one in the `~/go/bin` folder and automatically add the `nethelp` binary to your path.
 
 If you're new to Go consider taking the tour https://tour.golang.org/list.
 

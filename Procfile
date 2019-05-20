@@ -1,1 +1,1 @@
-web: nethelp idle
+web: bin/nethelp idle

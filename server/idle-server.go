@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -27,7 +28,7 @@ func handler() http.Handler {
 // IdleServer starts a webserver that will wait 15+ minutes
 // before responding to HTTP requests
 func IdleServer() {
-	port := "8080"
+	port := os.Getenv("PORT")
 
 	s := &http.Server{
 		Addr:         fmt.Sprint(":", port),

@@ -4,6 +4,12 @@
 Nethelp will assist with finding out what is blocking outbound connections from the machine by sending HTTP and TCP connections to servies used by Sauce Labs.
 
 ## Downloading and setting up
+#### Homebrew
+1. `brew tap mdsauce/nethelp https://github.com/mdsauce/nethelp`
+1. `brew install nethelp`
+
+
+#### Manual Download
 1. Download the binary for your operating system from [the releases](https://github.com/mdsauce/nethelp/releases).  
 2. On Mac and Linux make this file executable by running `$ chmod 755`. You may get a `permission denied` type error if you try and run without the `chmod` step.   For example on a Linux machine:
 ```

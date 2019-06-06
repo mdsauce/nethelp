@@ -1,3 +1,4 @@
 nethelp
 *.log
 .DS_Store
+builds/*

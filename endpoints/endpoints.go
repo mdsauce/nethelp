@@ -73,6 +73,15 @@ func NewVDCTest(dc string) SauceService {
 	return vdcTest
 }
 
+// NewHeadlessTest constructs a SauceService object that contains the specificed Datacenter and endpoints
+func NewHeadlessTest(dc string) SauceService {
+	headlessTest := SauceService{Datacenter: dc, Cloud: "headless"}
+	if dc == "east" {
+		headlessTest.Endpoints = []string{"http://ondemand.us-east-1.saucelabs.com:80", "https://ondemand.us-east-1.saucelabs.com:443"}
+	}
+	return headlessTest
+}
+
 // AssembleVDCEndpoints interpolates user variables like
 // SAUCE_USERNAME and SAUCE_ACCESS_KEY to create a valid URI.
 func AssembleVDCEndpoints(dc string) (*SauceService, error) {

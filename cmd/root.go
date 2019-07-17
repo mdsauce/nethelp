@@ -87,12 +87,18 @@ during a Sauce Labs session (RDC or VDC) .`,
 		whichCloud = strings.ToLower(whichCloud)
 		whichDC = strings.ToLower(whichDC)
 		vdcTest := endpoints.NewVDCTest(whichDC)
+		headlessTest := endpoints.NewHeadlessTest(whichDC)
 		rdcTest := endpoints.NewRDCTest(whichDC)
 		defPublic := endpoints.NewPublicTest()
 		vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
 		if err != nil {
 			log.Info(err)
 		}
+		headlessAPITest, err := endpoints.AssembleHeadlessEndpoints(whichDC)
+		if err != nil {
+			log.Info(err)
+		}
+
 		if whichDC != "all" {
 			validateDC(whichDC)
 		}
@@ -110,6 +116,13 @@ during a Sauce Labs session (RDC or VDC) .`,
 			if whichCloud == "rdc" {
 				diagnostics.RDCServices(rdcTest.Endpoints)
 			}
+			// Headless
+			if whichCloud == "headless" {
+				diagnostics.HeadlessServices(headlessTest.Endpoints)
+				if headlessAPITest != nil {
+					diagnostics.HeadlessAPI(headlessAPITest.Endpoints)
+				}
+			}
 		}
 
 		if runTCP {
@@ -118,11 +131,15 @@ during a Sauce Labs session (RDC or VDC) .`,
 		} else if whichCloud == "all" {
 			diagnostics.VDCServices(vdcTest.Endpoints)
 			diagnostics.RDCServices(rdcTest.Endpoints)
+			diagnostics.HeadlessServices(headlessTest.Endpoints)
 			if whichDC == "all" {
 				diagnostics.PublicSites(defPublic.Sitelist)
 			}
 			if vdcAPITest != nil {
 				diagnostics.VdcAPI(vdcAPITest.Endpoints)
+			}
+			if headlessAPITest != nil {
+				diagnostics.HeadlessAPI(headlessAPITest.Endpoints)
 			}
 		}
 	},
@@ -149,14 +166,11 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "print all logging levels")
 	rootCmd.PersistentFlags().StringVarP(&userProxy, "proxy", "p", "", "upstream proxy for nethelp to use. Enter like -p protocol://username:password@host:port")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.Flags().BoolP("lucky", "l", false, "disable the proxy check at startup and instead test the proxy during execution.")
 	rootCmd.Flags().Bool("tcp", false, "run TCP tests. Will always run against all endpoints.")
 	rootCmd.Flags().Bool("log", false, "enables logging and creates a nethelp.log file.  Will automatically append data to the file in a non-destructive manner.")
-	rootCmd.Flags().String("cloud", "all", "options are: VDC or RDC.  Select which services you'd like to test, Virtual Device Cloud or Real Device Cloud respectively.")
-	rootCmd.Flags().String("dc", "all", "options are: EU or NA.  Choose which data centers you want run diagnostics against, Europe or North America respectively.")
+	rootCmd.Flags().String("cloud", "all", "options are: VDC, RDC, or HEADLESS.  Select which services you'd like to test, Virtual Device Cloud, Real Device Cloud, or the Headless Cloud.")
+	rootCmd.Flags().String("dc", "all", "options are: EU, NA, or EAST.  Choose which data centers you want run diagnostics against, Europe, North America(West), or North America(East).")
 
 	// http client settings
 	http.DefaultTransport = &http.Transport{
@@ -250,13 +264,13 @@ func checkForEnvProxies() {
 }
 
 func validateCloud(whichCloud string) {
-	if whichCloud != "vdc" && whichCloud != "rdc" {
-		log.Fatal("The parameter is not valid.  Only 'all', 'vdc', or 'rdc' are allowed")
+	if whichCloud != "vdc" && whichCloud != "rdc" && whichCloud != "headless" {
+		log.Fatal("The parameter is not valid.  Only 'all', 'vdc', 'rdc', or 'headless' are allowed")
 	}
 }
 
 func validateDC(whichDC string) {
-	if whichDC != "na" && whichDC != "eu" {
-		log.Fatal("The parameter is not valid.  Only 'all', 'na', or 'eu' are allowed")
+	if whichDC != "na" && whichDC != "eu" && whichDC != "east" {
+		log.Fatal("The parameter is not valid.  Only 'all', 'na', 'eu', or 'east' are allowed")
 	}
 }

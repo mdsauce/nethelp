@@ -131,11 +131,15 @@ during a Sauce Labs session (RDC or VDC) .`,
 		} else if whichCloud == "all" {
 			diagnostics.VDCServices(vdcTest.Endpoints)
 			diagnostics.RDCServices(rdcTest.Endpoints)
+			diagnostics.HeadlessServices(headlessTest.Endpoints)
 			if whichDC == "all" {
 				diagnostics.PublicSites(defPublic.Sitelist)
 			}
 			if vdcAPITest != nil {
 				diagnostics.VdcAPI(vdcAPITest.Endpoints)
+			}
+			if headlessAPITest != nil {
+				diagnostics.HeadlessAPI(headlessAPITest.Endpoints)
 			}
 		}
 	},

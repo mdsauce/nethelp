@@ -121,11 +121,15 @@ func AssembleHeadlessEndpoints(dc string) (*SauceService, error) {
 	westHeadless := fmt.Sprintf("https://us-east-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
 
 	switch dc {
+	case "all":
+		e := make([]string, 1)
+		e[0] = westHeadless
+		return &SauceService{Datacenter: dc, Cloud: "headless", Endpoints: e}, nil
 	case "east":
-		e := make([]string, 2)
+		e := make([]string, 1)
 		e[0] = westHeadless
 		return &SauceService{Datacenter: dc, Cloud: "headless", Endpoints: e}, nil
 	default:
-		return nil, errors.New("Only 'east' is allowed")
+		return nil, errors.New("Only 'east' or 'all' is allowed")
 	}
 }

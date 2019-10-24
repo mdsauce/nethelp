@@ -1,6 +1,6 @@
-//+build windows
+//+build !windows
 
-package diagnostics
+package connections
 
 import (
 	"fmt"
@@ -11,22 +11,22 @@ import (
 
 func respOutput(resp *http.Response, endpoint string) {
 	if resp.StatusCode == 200 {
-		fmt.Printf("[OK] %s is reachable %s\n", endpoint, resp.Status)
+		fmt.Printf("[\u2713] %s is reachable %s\n", endpoint, resp.Status)
 		log.WithFields(log.Fields{
 			"status": resp.Status,
 			"resp":   resp,
-		}).Infof("[OK] %s reachable.\n", endpoint)
+		}).Infof("[\u2713] %s reachable.\n", endpoint)
 	} else if resp.StatusCode == 401 {
-		fmt.Printf("[OK] %s is reachable but returned %s\n", endpoint, resp.Status)
+		fmt.Printf("[\u2713] %s is reachable but returned %s\n", endpoint, resp.Status)
 		log.WithFields(log.Fields{
 			"status": resp.Status,
 			"resp":   resp,
-		}).Infof("[OK] %s reachable but unauthenticated.\n", endpoint)
+		}).Infof("[\u2713] %s reachable but unauthenticated.\n", endpoint)
 	} else {
-		fmt.Printf("[ERROR] %s returned %s\n", endpoint, resp.Status)
+		fmt.Printf("[ ] %s returned %s\n", endpoint, resp.Status)
 		log.WithFields(log.Fields{
 			"status": resp.Status,
 			"resp":   resp,
-		}).Infof("[ERROR] %s returned %s\n", endpoint, resp.Status)
+		}).Infof("[ ] %s returned %s\n", endpoint, resp.Status)
 	}
 }

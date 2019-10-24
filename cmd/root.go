@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mdsauce/nethelp/diagnostics"
+	"github.com/mdsauce/nethelp/connections"
 	"github.com/mdsauce/nethelp/endpoints"
 	"github.com/mdsauce/nethelp/proxy"
 	log "github.com/sirupsen/logrus"
@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 |___/\__,_|\__,_|\___\___/_/ |_| |_|\___|\__|_| |_|\___|_| .__/ 
                                                          |_|  
 Nethelp will help find out what is blocking outbound 
-connections by sending requests to services used 
+connections. by sending requests to services used 
 during a Sauce Labs session (RDC or VDC) .`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -98,39 +98,39 @@ during a Sauce Labs session (RDC or VDC) .`,
 			validateCloud(whichCloud)
 			// VDC
 			if whichCloud == "vdc" {
-				diagnostics.VDCServices(vdcTest.Endpoints)
+				connections.VDCServices(vdcTest.Endpoints)
 				if vdcAPITest != nil {
-					diagnostics.VdcAPI(vdcAPITest.Endpoints)
+					connections.VdcAPI(vdcAPITest.Endpoints)
 				}
 			}
 			// RDC
 			if whichCloud == "rdc" {
-				diagnostics.RDCServices(rdcTest.Endpoints)
+				connections.RDCServices(rdcTest.Endpoints)
 			}
 			// Headless
 			if whichCloud == "headless" {
-				diagnostics.HeadlessServices(headlessTest.Endpoints)
+				connections.HeadlessServices(headlessTest.Endpoints)
 				if headlessAPITest != nil {
-					diagnostics.HeadlessAPI(headlessAPITest.Endpoints)
+					connections.HeadlessAPI(headlessAPITest.Endpoints)
 				}
 			}
 		}
 
 		if runTCP {
 			defTCP := endpoints.NewTCPTest()
-			diagnostics.TCPConns(defTCP.Sitelist, proxyURL)
+			connections.TCPConns(defTCP.Sitelist, proxyURL)
 		} else if whichCloud == "all" {
-			diagnostics.VDCServices(vdcTest.Endpoints)
-			diagnostics.RDCServices(rdcTest.Endpoints)
-			diagnostics.HeadlessServices(headlessTest.Endpoints)
+			connections.VDCServices(vdcTest.Endpoints)
+			connections.RDCServices(rdcTest.Endpoints)
+			connections.HeadlessServices(headlessTest.Endpoints)
 			if whichDC == "all" {
-				diagnostics.PublicSites(defPublic.Sitelist)
+				connections.PublicSites(defPublic.Sitelist)
 			}
 			if vdcAPITest != nil {
-				diagnostics.VdcAPI(vdcAPITest.Endpoints)
+				connections.VdcAPI(vdcAPITest.Endpoints)
 			}
 			if headlessAPITest != nil {
-				diagnostics.HeadlessAPI(headlessAPITest.Endpoints)
+				connections.HeadlessAPI(headlessAPITest.Endpoints)
 			}
 		}
 	},

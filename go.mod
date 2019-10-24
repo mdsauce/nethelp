@@ -8,3 +8,5 @@ require (
 	github.com/spf13/viper v1.3.1
 	golang.org/x/net v0.0.0-20190206173232-65e2d4e15006
 )
+
+go 1.13

@@ -1,4 +1,4 @@
-package diagnostics
+package connections
 
 import (
 	"bytes"
@@ -10,9 +10,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// HeadlessServices sends HTTP requests to Headless Sauce endpoints to prove
+// VDCServices sends HTTP requests to Sauce endpoints to prove
 // tests could theoretically be created and the data centers are reachable
-func HeadlessServices(sauceEndpoints []string) {
+func VDCServices(sauceEndpoints []string) {
 	for _, endpoint := range sauceEndpoints {
 		u, err := url.ParseRequestURI(endpoint)
 		if err != nil {
@@ -47,11 +47,11 @@ func HeadlessServices(sauceEndpoints []string) {
 	}
 }
 
-// HeadlessAPI connects to Headless (us-east-1) REST endpoints to make sure
+// VdcAPI connects to VDC REST endpoints to make sure
 // 1) credentials work
 // 2) api is reachable
 // 3) api retrieves the expected data if 1 & 2 are true
-func HeadlessAPI(vdcRESTEndpoints []string) {
+func VdcAPI(vdcRESTEndpoints []string) {
 	log.Debug("Sending out HTTP reqs to these endpoints: ", vdcRESTEndpoints)
 	username := os.Getenv("SAUCE_USERNAME")
 	apiKey := os.Getenv("SAUCE_ACCESS_KEY")

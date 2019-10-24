@@ -1,4 +1,4 @@
-package diagnostics
+package connections
 
 import (
 	"bytes"
@@ -12,9 +12,9 @@ import (
 // that the endpoints are reachable from the machine
 func RDCServices(rdcEndpoints []string) {
 	for _, endpoint := range rdcEndpoints {
-		log.Debug("Sending POST req to ", endpoint)
+		log.Debug("Sending req to ", endpoint)
 		var jsonBody = []byte(`{"test":"this will result in an HTTP 500 resp or 401 resp."}`)
-		req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonBody))
+		req, err := http.NewRequest("GET", endpoint, bytes.NewBuffer(jsonBody))
 		req.Header.Set("Content-Type", "application/json")
 
 		client := &http.Client{}

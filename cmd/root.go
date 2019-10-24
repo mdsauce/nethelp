@@ -1,21 +1,18 @@
 package cmd
 
 import (
-	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/mdsauce/nethelp/diagnostics"
+	"github.com/mdsauce/nethelp/connections"
 	"github.com/mdsauce/nethelp/endpoints"
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mdsauce/nethelp/proxy"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var cfgFile string
@@ -32,7 +29,7 @@ var rootCmd = &cobra.Command{
 |___/\__,_|\__,_|\___\___/_/ |_| |_|\___|\__|_| |_|\___|_| .__/ 
                                                          |_|  
 Nethelp will help find out what is blocking outbound 
-connections by sending requests to services used 
+connections. by sending requests to services used 
 during a Sauce Labs session (RDC or VDC) .`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -65,9 +62,9 @@ during a Sauce Labs session (RDC or VDC) .`,
 		}
 
 		// Proxy setup and configuration
-		proxyURL := addProxy(userProxy, cmd)
+		proxyURL := proxy.AddProxy(userProxy, cmd)
 		log.Info("Proxy URL: ", proxyURL)
-		checkForEnvProxies()
+		proxy.CheckForEnvProxies()
 
 		// Collect the flags to decide which diagnostics to run
 		runTCP, err := cmd.Flags().GetBool("tcp")
@@ -90,14 +87,8 @@ during a Sauce Labs session (RDC or VDC) .`,
 		headlessTest := endpoints.NewHeadlessTest(whichDC)
 		rdcTest := endpoints.NewRDCTest(whichDC)
 		defPublic := endpoints.NewPublicTest()
-		vdcAPITest, err := endpoints.AssembleVDCEndpoints(whichDC)
-		if err != nil {
-			log.Info(err)
-		}
-		headlessAPITest, err := endpoints.AssembleHeadlessEndpoints(whichDC)
-		if err != nil {
-			log.Info(err)
-		}
+		vdcAPITest := endpoints.AssembleVDCEndpoints(whichDC)
+		headlessAPITest := endpoints.AssembleHeadlessEndpoints(whichDC)
 
 		if whichDC != "all" {
 			validateDC(whichDC)
@@ -107,39 +98,39 @@ during a Sauce Labs session (RDC or VDC) .`,
 			validateCloud(whichCloud)
 			// VDC
 			if whichCloud == "vdc" {
-				diagnostics.VDCServices(vdcTest.Endpoints)
+				connections.VDCServices(vdcTest.Endpoints)
 				if vdcAPITest != nil {
-					diagnostics.VdcAPI(vdcAPITest.Endpoints)
+					connections.VdcAPI(vdcAPITest.Endpoints)
 				}
 			}
 			// RDC
 			if whichCloud == "rdc" {
-				diagnostics.RDCServices(rdcTest.Endpoints)
+				connections.RDCServices(rdcTest.Endpoints)
 			}
 			// Headless
 			if whichCloud == "headless" {
-				diagnostics.HeadlessServices(headlessTest.Endpoints)
+				connections.HeadlessServices(headlessTest.Endpoints)
 				if headlessAPITest != nil {
-					diagnostics.HeadlessAPI(headlessAPITest.Endpoints)
+					connections.HeadlessAPI(headlessAPITest.Endpoints)
 				}
 			}
 		}
 
 		if runTCP {
 			defTCP := endpoints.NewTCPTest()
-			diagnostics.TCPConns(defTCP.Sitelist, proxyURL)
+			connections.TCPConns(defTCP.Sitelist, proxyURL)
 		} else if whichCloud == "all" {
-			diagnostics.VDCServices(vdcTest.Endpoints)
-			diagnostics.RDCServices(rdcTest.Endpoints)
-			diagnostics.HeadlessServices(headlessTest.Endpoints)
+			connections.VDCServices(vdcTest.Endpoints)
+			connections.RDCServices(rdcTest.Endpoints)
+			connections.HeadlessServices(headlessTest.Endpoints)
 			if whichDC == "all" {
-				diagnostics.PublicSites(defPublic.Sitelist)
+				connections.PublicSites(defPublic.Sitelist)
 			}
 			if vdcAPITest != nil {
-				diagnostics.VdcAPI(vdcAPITest.Endpoints)
+				connections.VdcAPI(vdcAPITest.Endpoints)
 			}
 			if headlessAPITest != nil {
-				diagnostics.HeadlessAPI(headlessAPITest.Endpoints)
+				connections.HeadlessAPI(headlessAPITest.Endpoints)
 			}
 		}
 	},
@@ -157,7 +148,6 @@ func Execute() {
 func init() {
 
 	log.SetFormatter(&log.TextFormatter{})
-	cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
@@ -178,88 +168,6 @@ func init() {
 			Timeout: 5 * time.Second,
 		}).Dial,
 		TLSHandshakeTimeout: 5 * time.Second,
-	}
-}
-
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-		log.Debug("Config file: ", cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Fatal("Failed to find homedir")
-		}
-		home = home + "/.config"
-		// Search config in home directory with name ".nethelp" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".nethelp")
-	}
-
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		log.Debugf("Using config file: %s", viper.ConfigFileUsed())
-	}
-}
-
-func addProxy(rawProxy string, cmd *cobra.Command) *url.URL {
-	var proxyURL *url.URL
-	var err error
-	var disableCheck bool
-	disableCheck, err = cmd.Flags().GetBool("lucky")
-	if err != nil {
-		log.Fatal("Something went terribly wrong disabling the check with --lucky", err)
-	}
-
-	if rawProxy != "" {
-		proxyURL, err = url.Parse(rawProxy)
-		if err != nil {
-			log.Fatalf("Panic while setting proxy %s.  Proxy not set and program exiting. %v", rawProxy, err)
-		}
-		// This takes care of HTTP calls globally
-		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyURL), TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-	}
-	// check that there are no env vars defining a proxy and everything works
-	if disableCheck != true {
-		checkProxy(rawProxy)
-	}
-	return proxyURL
-}
-
-func checkProxy(rawProxy string) {
-	resp, err := http.Get("https://www.saucelabs.com")
-	if err != nil {
-		if rawProxy != "" {
-			log.WithFields(log.Fields{
-				"error": err,
-				"msg":   "www.saucelabs.com not reachable with this proxy",
-			}).Fatalf("Something is wrong with the user specified proxy %s.  It cannot be used.", rawProxy)
-		} else {
-			log.WithFields(log.Fields{
-				"error": err,
-				"msg":   "www.saucelabs.com not reachable.",
-			}).Warn("You may have no internet access or a proxy may be in use.")
-		}
-	}
-	log.Info("Proxy OK.  Able to reach www.saucelabs.com.", resp)
-}
-
-func checkForEnvProxies() {
-	proxyList := []string{"HTTP_PROXY", "HTTPS_PROXY", "PROXY", "ALL_PROXY"}
-	for _, proxy := range proxyList {
-		if os.Getenv(proxy) != "" {
-			log.WithFields(log.Fields{
-				"env var":         proxy,
-				"potential proxy": os.Getenv(proxy),
-			}).Warn("An environment variable for a Proxy may exist.  This will NOT be automatically used.  You must use the --proxy flag.")
-		}
 	}
 }
 

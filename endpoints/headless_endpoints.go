@@ -11,7 +11,11 @@ import (
 // SAUCE_USERNAME and SAUCE_ACCESS_KEY to create a valid URI.
 func AssembleHeadlessEndpoints(dc string) *SauceService {
 	if os.Getenv("SAUCE_USERNAME") == "" {
-		log.Info("SAUCE_USERNAME environment variables not found.  Not running VDC REST endpoint tests.")
+		log.Info("SAUCE_USERNAME environment variables not found.  Not running Headless REST endpoint tests.")
+		return nil
+	}
+	if os.Getenv("HEADLESS_ACCESS_KEY") == "" {
+		log.Info("HEADLESS_ACCESS_KEY environment variable not found.  Not running Headless REST endpoint tests.")
 		return nil
 	}
 	eastHeadless := fmt.Sprintf("https://us-east-1.saucelabs.com/rest/v1/users/%s", os.Getenv("SAUCE_USERNAME"))

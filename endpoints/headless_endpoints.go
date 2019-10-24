@@ -3,6 +3,8 @@ package endpoints
 import (
 	"fmt"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // AssembleHeadlessEndpoints interpolates user variables like

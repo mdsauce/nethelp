@@ -3,6 +3,8 @@ package endpoints
 import (
 	"fmt"
 	"os"
+	log "github.com/sirupsen/logrus"
+
 )
 
 // NewVDCTest constructs a SauceService object that contains the specificed Datacenter and endpoints

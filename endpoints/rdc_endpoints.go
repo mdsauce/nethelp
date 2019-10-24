@@ -5,13 +5,13 @@ package endpoints
 func NewRDCTest(dc string) SauceService {
 	rdcTest := SauceService{Datacenter: dc, Cloud: "rdc"}
 	if dc == "eu" {
-		rdcTest.Endpoints = []string{"https://eu1.appium.testobject.com/wd/hub/session"}
+		rdcTest.Endpoints = []string{"https://eu1.appium.testobject.com/wd/hub/status"}
 	}
 	if dc == "na" {
-		rdcTest.Endpoints = []string{"https://us1.appium.testobject.com/wd/hub/session"}
+		rdcTest.Endpoints = []string{"https://us1.appium.testobject.com/wd/hub/status"}
 	}
 	if dc == "all" {
-		rdcTest.Endpoints = []string{"https://eu1.appium.testobject.com/wd/hub/session", "https://us1.appium.testobject.com/wd/hub/session"}
+		rdcTest.Endpoints = []string{"https://eu1.appium.testobject.com/wd/hub/status", "https://us1.appium.testobject.com/wd/hub/status"}
 	}
 	return rdcTest
 }

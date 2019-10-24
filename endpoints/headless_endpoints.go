@@ -14,7 +14,7 @@ func AssembleHeadlessEndpoints(dc string) *SauceService {
 		log.Info("SAUCE_USERNAME environment variables not found.  Not running VDC REST endpoint tests.")
 		return nil
 	}
-	eastHeadless := fmt.Sprintf("https://us-east-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
+	eastHeadless := fmt.Sprintf("https://us-east-1.saucelabs.com/rest/v1/users/%s", os.Getenv("SAUCE_USERNAME"))
 
 	switch dc {
 	case "all":

@@ -54,9 +54,9 @@ func HeadlessServices(sauceEndpoints []string) {
 func HeadlessAPI(vdcRESTEndpoints []string) {
 	log.Debug("Sending out HTTP reqs to these endpoints: ", vdcRESTEndpoints)
 	username := os.Getenv("SAUCE_USERNAME")
-	apiKey := os.Getenv("SAUCE_ACCESS_KEY")
+	apiKey := os.Getenv("HEADLESS_ACCESS_KEY")
 	for _, endpoint := range vdcRESTEndpoints {
-		log.Debug("Sending GET req to ", endpoint)
+		log.Debug("Sending req to ", endpoint)
 		var jsonBody = []byte(`{}`)
 		req, err := http.NewRequest("GET", endpoint, bytes.NewBuffer(jsonBody))
 		req.SetBasicAuth(username, apiKey)

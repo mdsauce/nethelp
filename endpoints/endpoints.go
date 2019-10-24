@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -84,10 +83,10 @@ func NewHeadlessTest(dc string) SauceService {
 
 // AssembleVDCEndpoints interpolates user variables like
 // SAUCE_USERNAME and SAUCE_ACCESS_KEY to create a valid URI.
-func AssembleVDCEndpoints(dc string) (*SauceService, error) {
+func AssembleVDCEndpoints(dc string) *SauceService {
 	if os.Getenv("SAUCE_USERNAME") == "" {
-		log.Info("SAUCE_USERNAME environment variables not found.  Not running VDC REST endpoint tests.")
-		return nil, errors.New("SAUCE_USERNAME environment variables not found, not running VDC REST endpoint tests")
+		log.Warn("SAUCE_USERNAME environment variables not found.  Not running VDC REST endpoint tests.")
+		return nil
 	}
 	naEndpoint := fmt.Sprintf("https://saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
 	euEndpoint := fmt.Sprintf("https://eu-central-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
@@ -97,26 +96,26 @@ func AssembleVDCEndpoints(dc string) (*SauceService, error) {
 		e := make([]string, 2)
 		e[0] = naEndpoint
 		e[1] = euEndpoint
-		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}, nil
+		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}
 	case "na":
 		e := make([]string, 1)
 		e[0] = naEndpoint
-		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}, nil
+		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}
 	case "eu":
 		e := make([]string, 1)
 		e[0] = euEndpoint
-		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}, nil
+		return &SauceService{Datacenter: dc, Cloud: "vdc", Endpoints: e}
 	default:
-		return nil, errors.New("Only 'all', 'vdc', or 'rdc' are allowed")
+		return nil
 	}
 }
 
 // AssembleHeadlessEndpoints interpolates user variables like
 // SAUCE_USERNAME and SAUCE_ACCESS_KEY to create a valid URI.
-func AssembleHeadlessEndpoints(dc string) (*SauceService, error) {
+func AssembleHeadlessEndpoints(dc string) *SauceService {
 	if os.Getenv("SAUCE_USERNAME") == "" {
 		log.Info("SAUCE_USERNAME environment variables not found.  Not running VDC REST endpoint tests.")
-		return nil, errors.New("SAUCE_USERNAME environment variables not found, not running VDC REST endpoint tests")
+		return nil
 	}
 	eastHeadless := fmt.Sprintf("https://us-east-1.saucelabs.com/rest/v1/%s/tunnels", os.Getenv("SAUCE_USERNAME"))
 
@@ -124,12 +123,12 @@ func AssembleHeadlessEndpoints(dc string) (*SauceService, error) {
 	case "all":
 		e := make([]string, 1)
 		e[0] = eastHeadless
-		return &SauceService{Datacenter: dc, Cloud: "headless", Endpoints: e}, nil
+		return &SauceService{Datacenter: dc, Cloud: "headless", Endpoints: e}
 	case "east":
 		e := make([]string, 1)
 		e[0] = eastHeadless
-		return &SauceService{Datacenter: dc, Cloud: "headless", Endpoints: e}, nil
+		return &SauceService{Datacenter: dc, Cloud: "headless", Endpoints: e}
 	default:
-		return nil, errors.New("Only 'east' or 'all' is allowed")
+		return nil
 	}
 }

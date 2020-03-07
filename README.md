@@ -18,7 +18,7 @@ $ chmod 755 nethelp
 $ ./nethelp --help
 ```
 3. Run `./nethelp` with whatever flags you need.
-[![asciicast](https://asciinema.org/a/232600.svg)](https://asciinema.org/a/232600?autoplay=1)
+![nethelp_demo](https://github.com/mdsauce/nethelp/blob/master/demo.gif)
 
 If you are on a Linux or Mac OS and you have root access you can add the `nethelp` binary to your command line by moving it to `/usr/local/bin`.  
 

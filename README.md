@@ -5,7 +5,7 @@ Nethelp will assist with finding out what is blocking outbound connections from 
 
 ## Downloading and setting up
 #### Homebrew
-1. `brew tap mdsauce/nethelp https://github.com/mdsauce/nethelp`
+1. `brew tap mdsauce/nethelp https://github.com/mdsauce/nethelp-brew`
 1. `brew install nethelp`
 
 
